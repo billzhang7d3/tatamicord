@@ -35,3 +35,11 @@ pub async fn create_app() -> Router {
         .with_state(client_clone);
         // .layer(TraceLayer::new_for_http())
 }
+
+#[cfg(test)]
+mod tests {
+    #[tokio::test]
+    async fn remove_later() {
+        assert_eq!(200, 200);
+    }
+}
