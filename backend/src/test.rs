@@ -20,13 +20,13 @@ mod login_tests {
     #[tokio::test]
     async fn invalid_login() {
         dotenv::dotenv().ok();
-        let chloe: LoginCredentials = LoginCredentials {
-            email: "chloe@example.com".to_string(),
-            password: "whale".to_string()
+        let amelia: LoginCredentials = LoginCredentials {
+            email: "amelia@example.com".to_string(),
+            password: "detective".to_string()
         };
         let server = TestServer::new(app::create_app().await).unwrap();
         let response = server.post("/login/")
-            .json::<LoginCredentials>(&chloe)
+            .json::<LoginCredentials>(&amelia)
             .await;
         assert_eq!(response.status_code(), 401);
     }
@@ -53,5 +53,23 @@ mod login_tests {
             .json::<LoginCredentials>(&chloe_login)
             .await;
         assert_eq!(response.status_code(), 200);
+    }
+    #[tokio::test]
+    async fn duplicate_email_not_allowed() {
+        dotenv::dotenv().ok();
+        let kiara_register: RegisterCredentials = RegisterCredentials  {
+            username: "kiara".to_string(),
+            email: "kiara@example.com".to_string(),
+            password: "phoenix".to_string()
+        };
+        let server = TestServer::new(app::create_app().await).unwrap();
+        server.post("/register/")
+            .json::<RegisterCredentials>(&kiara_register)
+            .await
+            .assert_status_ok();
+        server.post("/register/")
+            .json::<RegisterCredentials>(&kiara_register)
+            .await
+            .assert_status_not_ok();
     }
 }
