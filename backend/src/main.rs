@@ -1,4 +1,6 @@
 mod app;
+pub mod handlers;
+pub mod service;
 
 use std::env;
 use dotenv::dotenv;
@@ -10,7 +12,10 @@ async fn main() {
     let listener = tokio::net::TcpListener::bind(format!("localhost:{}", port))
         .await
         .unwrap();
+    println!("Server running at http://localhost:{}/", port);
     axum::serve(listener, app::create_app().await)
         .await
         .unwrap();
 }
+
+mod test;

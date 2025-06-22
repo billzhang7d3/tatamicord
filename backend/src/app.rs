@@ -2,8 +2,13 @@ use std::{
     sync::Arc,
     env
 };
-use axum::{Router};
+use axum::{
+    routing::{post},
+    Router
+};
 use tokio_postgres::{Client, Config, NoTls};
+
+use crate::handlers;
 
 
 async fn create_client() -> Client {
@@ -32,14 +37,8 @@ pub async fn create_app() -> Router {
     let client_arc = Arc::new(create_client().await);
     let client_clone = Arc::clone(&client_arc);
     return Router::new()
+        .route("/register/", post(handlers::register_handler))
+        .route("/login/", post(handlers::login_handler))
         .with_state(client_clone);
         // .layer(TraceLayer::new_for_http())
-}
-
-#[cfg(test)]
-mod tests {
-    #[tokio::test]
-    async fn remove_later() {
-        assert_eq!(200, 200);
-    }
 }

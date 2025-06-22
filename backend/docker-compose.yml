@@ -10,3 +10,4 @@ services:
       - "5432:5432"
     volumes:
       - ./sql/setup.sql:/docker-entrypoint-initdb.d/1.setup.sql
+      - ./sql/data.sql:/docker-entrypoint-initdb.d/2.data.sql
