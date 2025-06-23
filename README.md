@@ -13,7 +13,7 @@ Clone the repo.
 Install the frontend:
 ```
 cd frontend
-pnpm install
+npm install
 cd ..
 ```
 Create a `.env` file for the frontend:
