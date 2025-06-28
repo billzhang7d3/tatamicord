@@ -30,5 +30,6 @@ Create a `.env` file for the frontend:
 POSTGRES_USER=
 POSTGRES_PASSWORD=
 PORT=
+SECRET=
 ```
 
