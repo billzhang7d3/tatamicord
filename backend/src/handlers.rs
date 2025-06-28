@@ -1,18 +1,12 @@
 use crate::service::login;
 
-use axum::{
-    extract::State,
-    http::StatusCode,
-    response::IntoResponse,
-    Json,
-};
-use serde_json::to_string;
+use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
 use std::sync::Arc;
-use tokio_postgres::{Client};
+use tokio_postgres::Client;
 
 pub async fn register_handler(
     State(client): State<Arc<Client>>,
-    Json(body): Json<login::RegisterInfo>
+    Json(body): Json<login::RegisterInfo>,
 ) -> impl IntoResponse {
     let mut status_code: StatusCode = StatusCode::OK;
     let mut response_string = String::from("{\"result\": \"Successfully Registered\"}");
@@ -29,11 +23,15 @@ pub async fn register_handler(
 
 pub async fn login_handler(
     State(client): State<Arc<Client>>,
-    Json(body): Json<login::Credentials>
+    Json(body): Json<login::Credentials>,
 ) -> impl IntoResponse {
-    let auth_option = login::authenticate(&client, body).await;
+    let auth_option = login::log_in(&client, body).await;
     return match auth_option {
-        Some (jwt_response) => (StatusCode::OK, to_string(&jwt_response).unwrap()).into_response(),
-        _ => (StatusCode::UNAUTHORIZED, "{\"error\":\"Unauthorized.\"}").into_response()
-    }
+        Ok(jwt_response) => (
+            StatusCode::OK,
+            format!("{{\"result:\":\"{}\"}}", &jwt_response),
+        )
+            .into_response(),
+        _ => (StatusCode::UNAUTHORIZED, "{\"error\":\"Unauthorized.\"}").into_response(),
+    };
 }

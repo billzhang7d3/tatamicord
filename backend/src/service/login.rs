@@ -1,5 +1,11 @@
-use serde::{Serialize, Deserialize};
-use std::sync::Arc;
+use chrono::{DateTime, Utc};
+use dotenv::dotenv;
+use jsonwebtoken::{EncodingKey, Header, encode};
+use serde::{Deserialize, Serialize};
+use std::{
+    env,
+    sync::Arc
+};
 use tokio_postgres::{Client, Row};
 
 const NUM_TAGS: usize = 10000;
@@ -8,28 +14,28 @@ const NUM_TAGS: usize = 10000;
 pub enum RegistrationStatus {
     UsernameError,
     RegistrationError,
-    Registered
+    Registered,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Credentials {
     pub email: String,
-    pub password: String
+    pub password: String,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct RegisterInfo {
     pub username: String,
     pub email: String,
-    pub password: String
+    pub password: String,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct JwtResponse {
+pub struct UserJwt {
     id: String,
     username: String,
     tag: String,
-    jwt: String
+    exp: i64,
 }
 
 pub async fn register(client: &Arc<Client>, register_info: RegisterInfo) -> RegistrationStatus {
@@ -51,20 +57,27 @@ VALUES (
     )
 )
 RETURNING *;"#;
-    let rows_result: Result <Vec<Row>, tokio_postgres::Error> = client
-        .query(query, &[
-            &register_info.username,
-            &register_info.email,
-            &register_info.password])
+    let rows_result: Result<Vec<Row>, tokio_postgres::Error> = client
+        .query(
+            query,
+            &[
+                &register_info.username,
+                &register_info.email,
+                &register_info.password,
+            ],
+        )
         .await;
     // step 3: make sure we successfully registered
     return match rows_result {
         Ok(_) => RegistrationStatus::Registered,
-        Err (_err) => RegistrationStatus::RegistrationError
-    }
+        Err(_err) => RegistrationStatus::RegistrationError,
+    };
 }
 
-pub async fn authenticate(client: &Arc<Client>, credentials: Credentials) -> Option<JwtResponse> {
+pub async fn log_in(
+    client: &Arc<Client>,
+    credentials: Credentials,
+) -> Result<String, std::fmt::Error> {
     // query the username and password, making sure user exists
     let query = r#"
 SELECT id::VARCHAR, username, tag
@@ -72,19 +85,29 @@ FROM member
 WHERE login_info->>'email' = $1::TEXT
 AND crypt($2::TEXT, login_info->>'pw_hash') = login_info->>'pw_hash';
 "#;
-    let rows_result: Result<Row, tokio_postgres::Error> = client
+    let rows: Result<Row, tokio_postgres::Error> = client
         .query_one(query, &[&credentials.email, &credentials.password])
         .await;
-    // generate jwt here
-    return match rows_result {
-        Ok(row) => Some(JwtResponse {
-            id: row.get::<&str, String>("id"),
-            username: row.get::<&str, String>("username"),
-            tag: row.get::<&str, String>("tag"),
-            jwt: "fake jwt lol".to_string()
-        }),
-        Err(_) => None
+    if rows.is_err() {
+        return Err(std::fmt::Error);
     }
+    let rows = rows.unwrap();
+    // generate and return jwt
+    let now_utc = Utc::now();
+    let later_utc =
+        DateTime::from_timestamp(now_utc.timestamp() + 3600, now_utc.timestamp_subsec_nanos())
+            .unwrap();
+    let user_jwt = UserJwt {
+        id: rows.get::<&str, String>("id"),
+        username: rows.get::<&str, String>("username"),
+        tag: rows.get::<&str, String>("tag"),
+        exp: later_utc.timestamp(),
+    };
+    return Ok(encode(
+        &Header::default(),
+        &user_jwt,
+        &EncodingKey::from_secret(get_encoding_secret().as_ref()))
+    .unwrap());
 }
 
 async fn tag_available(client: &Arc<Client>, username: &str) -> bool {
@@ -93,9 +116,11 @@ SELECT tag
 FROM member
 WHERE username = $1::TEXT;
 "#;
-    let rows = client
-        .query(query, &[&username])
-        .await
-        .unwrap();
+    let rows = client.query(query, &[&username]).await.unwrap();
     return rows.len() < NUM_TAGS;
+}
+
+fn get_encoding_secret() -> String {
+    dotenv().ok();
+    return env::var("SECRET").unwrap();
 }
