@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use chrono::{TimeDelta, Utc};
 use dotenv::dotenv;
 use jsonwebtoken::{EncodingKey, Header, encode};
 use serde::{Deserialize, Serialize};
@@ -77,7 +77,7 @@ RETURNING *;"#;
 pub async fn log_in(
     client: &Arc<Client>,
     credentials: Credentials,
-) -> Result<String, std::fmt::Error> {
+) -> Option<String> {
     // query the username and password, making sure user exists
     let query = r#"
 SELECT id::VARCHAR, username, tag
@@ -89,21 +89,18 @@ AND crypt($2::TEXT, login_info->>'pw_hash') = login_info->>'pw_hash';
         .query_one(query, &[&credentials.email, &credentials.password])
         .await;
     if rows.is_err() {
-        return Err(std::fmt::Error);
+        return None;
     }
     let rows = rows.unwrap();
     // generate and return jwt
-    let now_utc = Utc::now();
-    let later_utc =
-        DateTime::from_timestamp(now_utc.timestamp() + 3600, now_utc.timestamp_subsec_nanos())
-            .unwrap();
+    let expiry = Utc::now() + TimeDelta::hours(1);
     let user_jwt = UserJwt {
         id: rows.get::<&str, String>("id"),
         username: rows.get::<&str, String>("username"),
         tag: rows.get::<&str, String>("tag"),
-        exp: later_utc.timestamp(),
+        exp: expiry.timestamp(),
     };
-    return Ok(encode(
+    return Some(encode(
         &Header::default(),
         &user_jwt,
         &EncodingKey::from_secret(get_encoding_secret().as_ref()))

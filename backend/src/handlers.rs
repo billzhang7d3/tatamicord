@@ -27,7 +27,7 @@ pub async fn login_handler(
 ) -> impl IntoResponse {
     let auth_option = login::log_in(&client, body).await;
     return match auth_option {
-        Ok(jwt_response) => (
+        Some(jwt_response) => (
             StatusCode::OK,
             format!("{{\"result:\":\"{}\"}}", &jwt_response),
         )
