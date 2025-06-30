@@ -4,11 +4,13 @@ import {
   Button,
   Group,
   Stack,
-  Text
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { useNavigate } from "react-router-dom";
+import LogoButton from "./LogoButton";
 
 function LandingPage() {
+  const navigate = useNavigate();
   const [opened, {toggle}] = useDisclosure();
   return (
     <AppShell
@@ -19,23 +21,30 @@ function LandingPage() {
       <AppShell.Header>
         <Group h="100%" px="md">
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-          <Text
-            size="lg"
-            fw={900}
-            variant="gradient"
-            gradient={{ from: 'yellow.3', to: 'teal.8', deg: 135 }}
-          >
-            Tatamicord
-          </Text>
+          <LogoButton />
         </Group>
       </AppShell.Header>
-      {/* <AppShell.Navbar p="md">
+      <AppShell.Navbar p="md">
         Navbar
-      </AppShell.Navbar> */}
+      </AppShell.Navbar>
       <AppShell.Main>
         <Stack align="center">
-          <Button variant="light">Login</Button>
-          <Button variant="light">Register</Button>
+          <Button
+            variant="light"
+            onClick={() => {
+              navigate("/login")
+            }}   
+          >
+            Login
+          </Button>
+          <Button
+            variant="light"
+            onClick={() => {
+              navigate("/register")
+            }}
+          >
+            Register
+          </Button>
         </Stack>
       </AppShell.Main>
     </AppShell>
