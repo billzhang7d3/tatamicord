@@ -12,14 +12,20 @@ import {
   Title,
   UnstyledButton
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-import { useNavigate } from "react-router-dom";
-import LogoButton from "./LogoButton";
+import { useDisclosure } from "@mantine/hooks"
+import { useNavigate } from "react-router-dom"
+import LogoButton from "./LogoButton"
+// import dotenv from "dotenv"
+import { useState } from "react";
 
+// dotenv.config()
 
 function LoginPage() {
-  const navigate = useNavigate();
-  const [opened, {toggle}] = useDisclosure();
+  const navigate = useNavigate()
+  const [opened, {toggle}] = useDisclosure()
+  const [email, setEmail] = useState<String>("")
+  const [password, setPassword] = useState<String>("")
+  const [invalid, setInvalid] = useState(false)
   return (
     <AppShell
       header={{ height: 60 }}
@@ -38,18 +44,52 @@ function LoginPage() {
       <AppShell.Main>
         <Stack align="stretch" style={{maxWidth: '300px'}}>
           <Center>
-            <Title order={1}>Log In</Title>
+            <Title order={1}>Login</Title>
           </Center>
           <TextInput
-            label="Username"
-            placeholder="Username"
+            label="Email"
+            placeholder="Email"
+            onChange={(event) => setEmail(event.currentTarget.value)}
+            error={invalid}
           />
           <PasswordInput
             label="Password"
             placeholder="Password"
+            onChange={(event) => setPassword(event.currentTarget.value)}
+            error={invalid}
           />
           <Center>
-            <Button variant="light">Login</Button>
+            <Button
+              variant="light"
+              onClick={() => {
+                const API_URL = "http://localhost:8080"
+                fetch(API_URL + "/login/", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify({
+                    email: email,
+                    password: password
+                  })
+                })
+                  .then((response) => {
+                    if (!response.ok) {
+                      throw new Error('Invalid Credentials');
+                    }
+                    return response.json()
+                  })
+                  .then((result) => {
+                    localStorage.setItem("authToken", result.result)
+                    navigate("/home")
+                  })
+                  .catch(() => {
+                    setInvalid(true)
+                  })
+              }}
+            >
+              Sign In
+            </Button>
           </Center>
           <Flex direction="row">
             <Group gap="xs">
