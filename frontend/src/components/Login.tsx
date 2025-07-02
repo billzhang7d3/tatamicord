@@ -23,8 +23,8 @@ import { useState } from "react";
 function LoginPage() {
   const navigate = useNavigate()
   const [opened, {toggle}] = useDisclosure()
-  const [email, setEmail] = useState<String>("")
-  const [password, setPassword] = useState<String>("")
+  const [email, setEmail] = useState<string>("")
+  const [password, setPassword] = useState<string>("")
   const [invalid, setInvalid] = useState(false)
   return (
     <AppShell
@@ -62,15 +62,15 @@ function LoginPage() {
             <Button
               variant="light"
               onClick={() => {
-                const API_URL = "http://localhost:8080"
-                fetch(API_URL + "/login/", {
+                const API_URL = "http://localhost:8080/login/"
+                fetch(API_URL, {
                   method: "POST",
                   headers: {
                     "Content-Type": "application/json"
                   },
                   body: JSON.stringify({
-                    email: email,
-                    password: password
+                    email,
+                    password
                   })
                 })
                   .then((response) => {
