@@ -72,4 +72,29 @@ mod login_tests {
             .await
             .assert_status_not_ok();
     }
+    #[tokio::test]
+    async fn test_tag_limit() {
+        dotenv::dotenv().ok();
+        let server = TestServer::new(app::create_app().await).unwrap();
+        for i in 0..10000 {
+            let account: RegisterCredentials = RegisterCredentials {
+                username: "aqua".to_string(),
+                email: format!("aqua{}@example.com", i),
+                password: "aqua".to_string()
+            };
+            server.post("/register/")
+                .json::<RegisterCredentials>(&account)
+                .await
+                .assert_status_ok();
+        }
+        let account: RegisterCredentials = RegisterCredentials {
+            username: "aqua".to_string(),
+            email: "aqua@example.com".to_string(),
+            password: "aqua".to_string()
+        };
+        server.post("/register/")
+            .json::<RegisterCredentials>(&account)
+            .await
+            .assert_status_not_ok();
+    }
 }
