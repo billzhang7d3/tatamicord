@@ -8,8 +8,6 @@ use std::{
 };
 use tokio_postgres::{Client, Row};
 
-const NUM_TAGS: usize = 10000;
-
 #[derive(PartialEq)]
 pub enum RegistrationStatus {
     UsernameError,
@@ -39,11 +37,6 @@ pub struct UserJwt {
 }
 
 pub async fn register(client: &Arc<Client>, register_info: RegisterInfo) -> RegistrationStatus {
-    // step 1: check available tags for the given username to see if username is available
-    if !tag_available(client, register_info.username.as_str()).await {
-        return RegistrationStatus::UsernameError;
-    }
-    // step 2: call the query, passing in the info from register_info and a random tag from tags
     let query = r#"
 INSERT INTO member (
     username,
@@ -67,10 +60,14 @@ RETURNING *;"#;
             ],
         )
         .await;
-    // step 3: make sure we successfully registered
     return match rows_result {
         Ok(_) => RegistrationStatus::Registered,
-        Err(_err) => RegistrationStatus::RegistrationError,
+        Err(_err) => {
+            if _err.to_string() == "db error: ERROR: all tags taken" {
+                return RegistrationStatus::UsernameError;
+            }
+            return RegistrationStatus::RegistrationError;
+        },
     };
 }
 
@@ -105,16 +102,6 @@ AND crypt($2::TEXT, login_info->>'pw_hash') = login_info->>'pw_hash';
         &user_jwt,
         &EncodingKey::from_secret(get_encoding_secret().as_ref()))
     .unwrap());
-}
-
-async fn tag_available(client: &Arc<Client>, username: &str) -> bool {
-    let query = r#"
-SELECT tag
-FROM member
-WHERE username = $1::TEXT;
-"#;
-    let rows = client.query(query, &[&username]).await.unwrap();
-    return rows.len() < NUM_TAGS;
 }
 
 fn get_encoding_secret() -> String {
