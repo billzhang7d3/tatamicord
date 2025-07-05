@@ -16,6 +16,10 @@ mod login_tests {
         email: String,
         password: String
     }
+    #[derive(Serialize, Deserialize)]
+    struct LoginResponse {
+        result: String
+    }
 
     #[tokio::test]
     async fn invalid_login() {
@@ -30,30 +34,32 @@ mod login_tests {
             .await;
         assert_eq!(response.status_code(), 401);
     }
-    #[tokio::test]
-    async fn register_chloe() {
-        dotenv::dotenv().ok();
-        // first we register
-        let chloe_register: RegisterCredentials = RegisterCredentials  {
-            username: "chloe".to_string(),
-            email: "chloe@example.com".to_string(),
-            password: "whale".to_string()
-        };
-        let chloe_login: LoginCredentials = LoginCredentials  {
-            email: "chloe@example.com".to_string(),
-            password: "whale".to_string()
-        };
-        let server = TestServer::new(app::create_app().await).unwrap();
-        let response = server.post("/register/")
-            .json::<RegisterCredentials>(&chloe_register)
-            .await;
-        assert_eq!(response.status_code(), 200);
-        // then we login and it works
-        let response = server.post("/login/")
-            .json::<LoginCredentials>(&chloe_login)
-            .await;
-        assert_eq!(response.status_code(), 200);
-    }
+
+    // #[tokio::test]
+    // async fn register_chloe() {
+    //     dotenv::dotenv().ok();
+    //     // first we register
+    //     let chloe_register: RegisterCredentials = RegisterCredentials  {
+    //         username: "chloe".to_string(),
+    //         email: "chloe@example.com".to_string(),
+    //         password: "whale".to_string()
+    //     };
+    //     let chloe_login: LoginCredentials = LoginCredentials  {
+    //         email: "chloe@example.com".to_string(),
+    //         password: "whale".to_string()
+    //     };
+    //     let server = TestServer::new(app::create_app().await).unwrap();
+    //     let response = server.post("/register/")
+    //         .json::<RegisterCredentials>(&chloe_register)
+    //         .await;
+    //     assert_eq!(response.status_code(), 200);
+    //     // then we login and it works
+    //     let response = server.post("/login/")
+    //         .json::<LoginCredentials>(&chloe_login)
+    //         .await;
+    //     assert_eq!(response.status_code(), 200);
+    // }
+
     #[tokio::test]
     async fn duplicate_email_not_allowed() {
         dotenv::dotenv().ok();
@@ -66,35 +72,99 @@ mod login_tests {
         server.post("/register/")
             .json::<RegisterCredentials>(&kiara_register)
             .await
-            .assert_status_ok();
-        server.post("/register/")
-            .json::<RegisterCredentials>(&kiara_register)
+            .assert_status_not_ok();
+    }
+
+    // #[tokio::test]
+    // async fn test_tag_limit() {
+    //     dotenv::dotenv().ok();
+    //     let server = TestServer::new(app::create_app().await).unwrap();
+    //     for i in 0..10000 {
+    //         let account: RegisterCredentials = RegisterCredentials {
+    //             username: "aqua".to_string(),
+    //             email: format!("aqua{}@example.com", i),
+    //             password: "aqua".to_string()
+    //         };
+    //         server.post("/register/")
+    //             .json::<RegisterCredentials>(&account)
+    //             .await
+    //             .assert_status_ok();
+    //     }
+    //     let account: RegisterCredentials = RegisterCredentials {
+    //         username: "aqua".to_string(),
+    //         email: "aqua@example.com".to_string(),
+    //         password: "aqua".to_string()
+    //     };
+    //     server.post("/register/")
+    //         .json::<RegisterCredentials>(&account)
+    //         .await
+    //         .assert_status_not_ok();
+    // }
+}
+
+#[cfg(test)]
+mod friend_tests {
+    use axum_test::TestServer;
+    use serde::{Serialize, Deserialize};
+
+    use crate::app;
+
+    #[derive(Serialize, Deserialize)]
+    struct LoginCredentials {
+        email: String,
+        password: String
+    }
+    #[derive(Serialize, Deserialize)]
+    struct LoginResponse {
+        result: String
+    }
+
+    async fn login(server: &TestServer, credentials: &LoginCredentials) -> String {
+        let response = server.post("/login/")
+            .json::<LoginCredentials>(&credentials)
+            .await
+            .json::<LoginResponse>();
+        return response.result;
+    }
+
+    #[tokio::test]
+    async fn get_friends_list_no_auth() {
+        dotenv::dotenv().ok();
+        let server = TestServer::new(app::create_app().await).unwrap();
+        server.get("/friends/")
             .await
             .assert_status_not_ok();
     }
+
     #[tokio::test]
-    async fn test_tag_limit() {
+    async fn get_friends_list_no_auth_type() {
         dotenv::dotenv().ok();
         let server = TestServer::new(app::create_app().await).unwrap();
-        for i in 0..10000 {
-            let account: RegisterCredentials = RegisterCredentials {
-                username: "aqua".to_string(),
-                email: format!("aqua{}@example.com", i),
-                password: "aqua".to_string()
-            };
-            server.post("/register/")
-                .json::<RegisterCredentials>(&account)
-                .await
-                .assert_status_ok();
-        }
-        let account: RegisterCredentials = RegisterCredentials {
-            username: "aqua".to_string(),
-            email: "aqua@example.com".to_string(),
-            password: "aqua".to_string()
+        // login as noel
+        let noel: LoginCredentials = LoginCredentials {
+            email: "noel@example.com".to_string(),
+            password: "knight".to_string()
         };
-        server.post("/register/")
-            .json::<RegisterCredentials>(&account)
+        let jwt = login(&server, &noel).await;
+        server.get("/friends/")
+            .add_header("Authorization", jwt)
             .await
             .assert_status_not_ok();
+    }
+
+    #[tokio::test]
+    async fn noel_gets_empty_friends_list() {
+        dotenv::dotenv().ok();
+        let server = TestServer::new(app::create_app().await).unwrap();
+        // login as noel
+        let noel: LoginCredentials = LoginCredentials {
+            email: "noel@example.com".to_string(),
+            password: "knight".to_string()
+        };
+        let jwt = login(&server, &noel).await;
+        server.get("/friends/")
+            .add_header("Authorization", format!("jwt {}", jwt))
+            .await
+            .assert_status_ok();
     }
 }

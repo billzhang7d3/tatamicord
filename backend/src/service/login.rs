@@ -1,6 +1,14 @@
 use chrono::{TimeDelta, Utc};
 use dotenv::dotenv;
-use jsonwebtoken::{EncodingKey, Header, encode};
+use http::HeaderMap;
+use jsonwebtoken::{
+    Algorithm,
+    encode,
+    decode,
+    DecodingKey,
+    EncodingKey,
+    Header,
+    Validation};
 use serde::{Deserialize, Serialize};
 use std::{
     env,
@@ -30,10 +38,10 @@ pub struct RegisterInfo {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct UserJwt {
-    id: String,
-    username: String,
-    tag: String,
-    exp: i64,
+    pub id: String,
+    pub username: String,
+    pub tag: String,
+    pub exp: i64,
 }
 
 pub async fn register(client: &Arc<Client>, register_info: RegisterInfo) -> RegistrationStatus {
@@ -71,10 +79,7 @@ RETURNING *;"#;
     };
 }
 
-pub async fn log_in(
-    client: &Arc<Client>,
-    credentials: Credentials,
-) -> Option<String> {
+pub async fn log_in(client: &Arc<Client>, credentials: Credentials,) -> Option<String> {
     // query the username and password, making sure user exists
     let query = r#"
 SELECT id::VARCHAR, username, tag
@@ -107,4 +112,33 @@ AND crypt($2::TEXT, login_info->>'pw_hash') = login_info->>'pw_hash';
 fn get_encoding_secret() -> String {
     dotenv().ok();
     return env::var("SECRET").unwrap();
+}
+
+pub async fn authenticated(header: &HeaderMap) -> Result<UserJwt, String> {
+    let jwt_option = header.get("Authorization");
+    if jwt_option.is_none() {
+        return Err("Authorization header not found")?;
+    }
+    let full_jwt = jwt_option
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .to_string();
+    let mut jwt_split = full_jwt.split(' ');
+    let jwt_type = jwt_split.next();
+    if jwt_type.is_none() {
+        return Err("Authorization header empty")?;
+    }
+    let jwt = jwt_split.next();
+    if jwt.is_none() {
+        return Err("Authorization not complete")?;
+    }
+    // println!("jwt_type: |{}|", jwt_type.unwrap().to_string());
+    let validation = Validation::new(Algorithm::HS256);
+    let decoded = decode::<UserJwt>(
+        &jwt.unwrap().to_string(),
+        &DecodingKey::from_secret(get_encoding_secret().as_ref()),
+        &validation
+    ).unwrap();
+    return Ok(decoded.claims);
 }

@@ -1,5 +1,5 @@
 use axum::{
-    routing::{post},
+    routing::{get, post},
     Router
 };
 use http::header::{AUTHORIZATION, CONTENT_TYPE};
@@ -45,6 +45,7 @@ pub async fn create_app() -> Router {
     return Router::new()
         .route("/register/", post(handlers::register_handler))
         .route("/login/", post(handlers::login_handler))
+        .route("/friends/", get(handlers::get_friends_handler))
         .with_state(client_clone)
         .layer(ServiceBuilder::new()
             .layer(cors));

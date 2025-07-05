@@ -13,3 +13,11 @@ CREATE TABLE member (
     tag CHAR(4),
     login_info jsonb
 );
+
+DROP TABLE IF EXISTS friendship CASCADE;
+
+CREATE table friendship(
+    id1 UUID REFERENCES member(id),
+    id2 UUID REFERENCES member(id),
+    PRIMARY KEY (id1, id2)
+);

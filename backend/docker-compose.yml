@@ -11,4 +11,4 @@ services:
     volumes:
       - ./sql/setup.sql:/docker-entrypoint-initdb.d/1.setup.sql
       - ./sql/tag_generation.sql:/docker-entrypoint-initdb.d/2.tag_generation.sql
-      - ./sql/data.sql:/docker-entrypoint-initdb.d/3.data.sql
+      - ./sql/test_data.sql:/docker-entrypoint-initdb.d/3.test_data.sql
