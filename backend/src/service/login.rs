@@ -79,7 +79,7 @@ RETURNING *;"#;
     };
 }
 
-pub async fn log_in(client: &Arc<Client>, credentials: Credentials,) -> Option<String> {
+pub async fn log_in(client: &Arc<Client>, credentials: Credentials) -> Option<String> {
     // query the username and password, making sure user exists
     let query = r#"
 SELECT id::VARCHAR, username, tag

@@ -19,4 +19,10 @@ INSERT INTO member (
         'email', 'luna@example.com',
         'pw_hash', crypt('princess', gen_salt('bf'))
     )
+), (
+    'bill',
+    jsonb_build_object(
+        'email', 'bill@example.com',
+        'pw_hash', crypt('scientist', gen_salt('bf'))
+    )
 );

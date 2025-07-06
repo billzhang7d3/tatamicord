@@ -11,7 +11,8 @@ CREATE TABLE member (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username VARCHAR(32),
     tag CHAR(4),
-    login_info jsonb
+    login_info jsonb,
+    UNIQUE (username, tag)
 );
 
 DROP TABLE IF EXISTS friendship CASCADE;

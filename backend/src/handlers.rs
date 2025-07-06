@@ -1,4 +1,4 @@
-use crate::service::{friend, login};
+use crate::service::{friend, login, member};
 
 use axum::{
     Json,
@@ -59,5 +59,32 @@ pub async fn get_friends_handler(
     return (
         StatusCode::OK,
         serde_json::to_string(&friends_list).unwrap()
+    ).into_response();
+}
+
+pub async fn change_username_handler(
+    headers: HeaderMap,
+    State(client): State<Arc<Client>>,
+    Json(body): Json<member::NewUsername>
+) -> impl IntoResponse {
+    // auth
+    let auth_result = login::authenticated(&headers).await;
+    if auth_result.is_err() {
+        return (
+            StatusCode::NOT_FOUND,
+            "{\"error\":\"Not Found.\"}"
+        ).into_response();
+    }
+    // change username
+    let id = auth_result.unwrap().id;
+    if member::change_username(&client, id, body.new_username).await {
+        return (
+            StatusCode::OK,
+            "{\"result\":\"Successful.\"}"
+        ).into_response();
+    }
+    return (
+        StatusCode::CONFLICT,
+        "{\"error\":\"Username already taken up for tag.\"}"
     ).into_response();
 }
