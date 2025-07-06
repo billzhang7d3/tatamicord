@@ -28,12 +28,31 @@ WHERE id IN (
     WHERE id1::TEXT = $1::TEXT);
 "#;
     let rows_result: Vec<Row> = client
-        .query(
-            query,
-            &[
-                &id,
-            ],
+        .query(query, &[&id])
+        .await
+        .unwrap();
+    return rows_result
+        .into_iter()
+        .map(|row| 
+            Friend {
+                id: row.get::<&str, String>("id"),
+                username: row.get::<&str, String>("username"),
+                tag: row.get::<&str, String>("tag")
+            }
         )
+        .collect();
+}
+
+pub async fn get_incoming_friend_requests(client: &Arc<Client>, id: String) -> Vec <Friend> {
+    let query = r#"
+SELECT m.id::VARCHAR, m.username, m.tag
+FROM member m
+INNER JOIN friend_requests fr
+ON m.id = fr.receiver
+WHERE fr.sender::TEXT = $1::TEXT;
+"#;
+    let rows_result: Vec<Row> = client
+        .query(query, &[&id])
         .await
         .unwrap();
     return rows_result

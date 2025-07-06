@@ -187,6 +187,21 @@ mod member_change_tests {
             .await
             .assert_status_conflict();
     }
+
+    #[tokio::test]
+    async fn bill_gets_empty_friend_request_list() {
+        dotenv::dotenv().ok();
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let bill: Credentials = Credentials {
+            email: "bill@example.com".to_string(),
+            password: "scientist".to_string()
+        };
+        let jwt = login(&server, &bill).await;
+        server.get("/incoming-friend-requests/")
+            .add_header("Authorization", format!("jwt {}", jwt))
+            .await
+            .assert_status_ok();
+    }
 }
 
 #[cfg(test)]
@@ -228,12 +243,12 @@ mod friend_tests {
     async fn get_friends_list_no_auth_type() {
         dotenv::dotenv().ok();
         let server = TestServer::new(app::create_app().await).unwrap();
-        // login as noel
-        let noel: Credentials = Credentials {
-            email: "noel@example.com".to_string(),
-            password: "knight".to_string()
+        // login as bill
+        let bill: Credentials = Credentials {
+            email: "bill@example.com".to_string(),
+            password: "scientist".to_string()
         };
-        let jwt = login(&server, &noel).await;
+        let jwt = login(&server, &bill).await;
         server.get("/friends/")
             .add_header("Authorization", jwt)
             .await
@@ -241,15 +256,15 @@ mod friend_tests {
     }
 
     #[tokio::test]
-    async fn noel_gets_empty_friends_list() {
+    async fn bill_gets_empty_friends_list() {
         dotenv::dotenv().ok();
         let server = TestServer::new(app::create_app().await).unwrap();
-        // login as noel
-        let noel: Credentials = Credentials {
-            email: "noel@example.com".to_string(),
-            password: "knight".to_string()
+        // login as bill
+        let bill: Credentials = Credentials {
+            email: "bill@example.com".to_string(),
+            password: "scientist".to_string()
         };
-        let jwt = login(&server, &noel).await;
+        let jwt = login(&server, &bill).await;
         server.get("/friends/")
             .add_header("Authorization", format!("jwt {}", jwt))
             .await

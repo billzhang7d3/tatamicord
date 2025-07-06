@@ -46,6 +46,7 @@ pub async fn create_app() -> Router {
         .route("/register/", post(handlers::register_handler))
         .route("/login/", post(handlers::login_handler))
         .route("/friends/", get(handlers::get_friends_handler))
+        .route("/incoming-friend-requests/", get(handlers::get_incoming_fr_handler))
         .route("/username/", put(handlers::change_username_handler))
         .route("/tag/", put(handlers::change_tag_handler))
         .with_state(client_clone)

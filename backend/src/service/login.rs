@@ -142,3 +142,4 @@ pub async fn authenticated(header: &HeaderMap) -> Result<UserJwt, String> {
     ).unwrap();
     return Ok(decoded.claims);
 }
+ // TODO: do one last check for decoded is_err()
