@@ -109,11 +109,6 @@ AND crypt($2::TEXT, login_info->>'pw_hash') = login_info->>'pw_hash';
     .unwrap());
 }
 
-fn get_encoding_secret() -> String {
-    dotenv().ok();
-    return env::var("SECRET").unwrap();
-}
-
 pub async fn authenticated(header: &HeaderMap) -> Result<UserJwt, String> {
     let jwt_option = header.get("Authorization");
     if jwt_option.is_none() {
@@ -139,7 +134,15 @@ pub async fn authenticated(header: &HeaderMap) -> Result<UserJwt, String> {
         &jwt.unwrap().to_string(),
         &DecodingKey::from_secret(get_encoding_secret().as_ref()),
         &validation
-    ).unwrap();
-    return Ok(decoded.claims);
+    );
+    if decoded.is_err() {
+        return Err("Cannot decode token")?;
+    }
+    return Ok(decoded.unwrap().claims);
 }
  // TODO: do one last check for decoded is_err()
+
+fn get_encoding_secret() -> String {
+    dotenv().ok();
+    return env::var("SECRET").unwrap();
+}

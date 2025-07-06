@@ -3,7 +3,7 @@ mod login_tests {
     use axum_test::TestServer;
     use serde::{Serialize, Deserialize};
 
-    use crate::service::login::{Credentials, RegisterInfo};
+    use crate::service::auth::{Credentials, RegisterInfo};
     use crate::app;
 
     #[derive(Serialize, Deserialize)]
@@ -97,7 +97,7 @@ mod member_change_tests {
     use axum_test::TestServer;
     use serde::{Serialize, Deserialize};
 
-    use crate::service::login::{Credentials};
+    use crate::service::auth::{Credentials};
     use crate::service::member::{NewUsername};
     use crate::app;
 
@@ -208,7 +208,7 @@ mod member_change_tests {
 mod friend_tests {
     use axum_test::TestServer;
     use serde::{Serialize, Deserialize};
-    use crate::service::login::{Credentials};
+    use crate::service::auth::{Credentials};
 
     use crate::app;
 

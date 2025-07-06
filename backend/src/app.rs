@@ -11,8 +11,8 @@ use tokio_postgres::{Client, Config, NoTls};
 use tower::ServiceBuilder;
 use tower_http::cors::{Any, CorsLayer};
 
+// use crate::handlers;
 use crate::handlers;
-
 
 async fn create_client() -> Client {
     let mut configuration = Config::new();
@@ -43,12 +43,12 @@ pub async fn create_app() -> Router {
     let client_arc = Arc::new(create_client().await);
     let client_clone = Arc::clone(&client_arc);
     return Router::new()
-        .route("/register/", post(handlers::register_handler))
-        .route("/login/", post(handlers::login_handler))
-        .route("/friends/", get(handlers::get_friends_handler))
-        .route("/incoming-friend-requests/", get(handlers::get_incoming_fr_handler))
-        .route("/username/", put(handlers::change_username_handler))
-        .route("/tag/", put(handlers::change_tag_handler))
+        .route("/register/", post(handlers::auth::register_handler))
+        .route("/login/", post(handlers::auth::login_handler))
+        .route("/friends/", get(handlers::friend::get_friends_handler))
+        .route("/incoming-friend-requests/", get(handlers::friend::get_incoming_fr_handler))
+        .route("/username/", put(handlers::member::change_username_handler))
+        .route("/tag/", put(handlers::member::change_tag_handler))
         .with_state(client_clone)
         .layer(ServiceBuilder::new()
             .layer(cors));
