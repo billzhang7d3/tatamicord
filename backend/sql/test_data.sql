@@ -25,4 +25,16 @@ INSERT INTO member (
         'email', 'bill@example.com',
         'pw_hash', crypt('scientist', gen_salt('bf'))
     )
+), (
+    'ruby',
+    jsonb_build_object(
+        'email', 'ruby@example.com',
+        'pw_hash', crypt('star', gen_salt('bf'))
+    )
+), (
+    'ruby',
+    jsonb_build_object(
+        'email', 'ruby2@example.com',
+        'pw_hash', crypt('star', gen_salt('bf'))
+    )
 );

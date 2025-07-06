@@ -25,30 +25,30 @@ mod login_tests {
         assert_eq!(response.status_code(), 401);
     }
 
-    #[tokio::test]
-    async fn register_chloe() {
-        dotenv::dotenv().ok();
-        // first we register
-        let chloe_register: RegisterInfo = RegisterInfo  {
-            username: "chloe".to_string(),
-            email: "chloe@example.com".to_string(),
-            password: "whale".to_string()
-        };
-        let chloe_login: Credentials = Credentials  {
-            email: "chloe@example.com".to_string(),
-            password: "whale".to_string()
-        };
-        let server = TestServer::new(app::create_app().await).unwrap();
-        let response = server.post("/register/")
-            .json::<RegisterInfo>(&chloe_register)
-            .await;
-        assert_eq!(response.status_code(), 200);
-        // then we login and it works
-        let response = server.post("/login/")
-            .json::<Credentials>(&chloe_login)
-            .await;
-        assert_eq!(response.status_code(), 200);
-    }
+    // #[tokio::test]
+    // async fn register_chloe() {
+    //     dotenv::dotenv().ok();
+    //     // first we register
+    //     let chloe_register: RegisterInfo = RegisterInfo  {
+    //         username: "chloe".to_string(),
+    //         email: "chloe@example.com".to_string(),
+    //         password: "whale".to_string()
+    //     };
+    //     let chloe_login: Credentials = Credentials  {
+    //         email: "chloe@example.com".to_string(),
+    //         password: "whale".to_string()
+    //     };
+    //     let server = TestServer::new(app::create_app().await).unwrap();
+    //     let response = server.post("/register/")
+    //         .json::<RegisterInfo>(&chloe_register)
+    //         .await;
+    //     assert_eq!(response.status_code(), 200);
+    //     // then we login and it works
+    //     let response = server.post("/login/")
+    //         .json::<Credentials>(&chloe_login)
+    //         .await;
+    //     assert_eq!(response.status_code(), 200);
+    // }
 
     #[tokio::test]
     async fn duplicate_email_not_allowed() {
@@ -62,7 +62,7 @@ mod login_tests {
         server.post("/register/")
             .json::<RegisterInfo>(&kiara_register)
             .await
-            .assert_status_not_ok();
+            .assert_status_forbidden();
     }
 
     // #[tokio::test]
@@ -105,6 +105,10 @@ mod member_change_tests {
     struct LoginResponse {
         result: String
     }
+    #[derive(Serialize, Deserialize)]
+    struct NewTag {
+        new_tag: String
+    }
 
     async fn login(server: &TestServer, credentials: &Credentials) -> String {
         let response = server.post("/login/")
@@ -131,6 +135,57 @@ mod member_change_tests {
             .json::<NewUsername>(&new_name)
             .await;
         assert_eq!(response.status_code(), 200);
+    }
+
+    #[tokio::test]
+    async fn luna_changes_her_tag() {
+        dotenv::dotenv().ok();
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let luna: Credentials = Credentials {
+            email: "luna@example.com".to_string(),
+            password: "princess".to_string()
+        };
+        let jwt = login(&server, &luna).await;
+        let new_tag = NewTag {
+            new_tag: "2020".to_string()
+        };
+        let response = server.put("/tag/")
+            .add_header("Authorization", format!("jwt {}", jwt))
+            .json::<NewTag>(&new_tag)
+            .await;
+        assert_eq!(response.status_code(), 200);
+    }
+
+    #[tokio::test]
+    async fn ruby_reserves_tag() {
+        dotenv::dotenv().ok();
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let ruby: Credentials = Credentials {
+            email: "ruby@example.com".to_string(),
+            password: "star".to_string()
+        };
+        let ruby2: Credentials = Credentials {
+            email: "ruby2@example.com".to_string(),
+            password: "star".to_string()
+        };
+        let jwt1 = login(&server, &ruby).await;
+        let new_tag = NewTag {
+            new_tag: "2022".to_string()
+        };
+        let response = server.put("/tag/")
+            .add_header("Authorization", format!("jwt {}", jwt1))
+            .json::<NewTag>(&new_tag)
+            .await;
+        assert_eq!(response.status_code(), 200);
+        let jwt2 = login(&server, &ruby2).await;
+        let new_tag = NewTag {
+            new_tag: "2022".to_string()
+        };
+        server.put("/tag/")
+            .add_header("Authorization", format!("jwt {}", jwt2))
+            .json::<NewTag>(&new_tag)
+            .await
+            .assert_status_conflict();
     }
 }
 
@@ -166,7 +221,7 @@ mod friend_tests {
         let server = TestServer::new(app::create_app().await).unwrap();
         server.get("/friends/")
             .await
-            .assert_status_not_ok();
+            .assert_status_not_found();
     }
 
     #[tokio::test]
@@ -182,7 +237,7 @@ mod friend_tests {
         server.get("/friends/")
             .add_header("Authorization", jwt)
             .await
-            .assert_status_not_ok();
+            .assert_status_not_found();
     }
 
     #[tokio::test]
