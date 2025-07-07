@@ -187,21 +187,6 @@ mod member_change_tests {
             .await
             .assert_status_conflict();
     }
-
-    #[tokio::test]
-    async fn bill_gets_empty_friend_request_list() {
-        dotenv::dotenv().ok();
-        let server = TestServer::new(app::create_app().await).unwrap();
-        let bill: Credentials = Credentials {
-            email: "bill@example.com".to_string(),
-            password: "scientist".to_string()
-        };
-        let jwt = login(&server, &bill).await;
-        server.get("/incoming-friend-requests/")
-            .add_header("Authorization", format!("jwt {}", jwt))
-            .await
-            .assert_status_ok();
-    }
 }
 
 #[cfg(test)]
@@ -211,6 +196,8 @@ mod friend_tests {
     use crate::service::auth::{Credentials};
 
     use crate::app;
+    use crate::service::friend::{Friend, FriendRequest};
+    use crate::service::member::NewTag;
 
     #[derive(Serialize, Deserialize)]
     struct LoginCredentials {
@@ -218,7 +205,7 @@ mod friend_tests {
         password: String
     }
     #[derive(Serialize, Deserialize)]
-    struct LoginResponse {
+    struct BasicResponse {
         result: String
     }
 
@@ -226,7 +213,7 @@ mod friend_tests {
         let response = server.post("/login/")
             .json::<Credentials>(&credentials)
             .await
-            .json::<LoginResponse>();
+            .json::<BasicResponse>();
         return response.result;
     }
 
@@ -271,22 +258,77 @@ mod friend_tests {
             .assert_status_ok();
     }
 
-    // #[tokio::test]
-    // async fn luna_sends_fr_to_noel() {
-    //     dotenv::dotenv().ok();
-    //     let server = TestServer::new(app::create_app().await).unwrap();
-    //     // login as noel
-    //     let noel: Credentials = Credentials {
-    //         email: "noel@example.com".to_string(),
-    //         password: "knight".to_string()
-    //     };
-    //     let noel_jwt = login(&server, &noel).await;
-    //     // login as luna
-    //     let noel: Credentials = Credentials {
-    //         email: "noel@example.com".to_string(),
-    //         password: "knight".to_string()
-    //     };
-    //     let luna_jwt = login(&server, &noel).await;
+    #[tokio::test]
+    async fn bill_gets_empty_incoming_fr_list() {
+        dotenv::dotenv().ok();
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let bill: Credentials = Credentials {
+            email: "bill@example.com".to_string(),
+            password: "scientist".to_string()
+        };
+        let jwt = login(&server, &bill).await;
+        server.get("/incoming-friend-requests/")
+            .add_header("Authorization", format!("jwt {}", jwt))
+            .await
+            .assert_status_ok();
+    }
 
-    // }
+    #[tokio::test]
+    async fn bill_gets_empty_outgoing_fr_list() {
+        dotenv::dotenv().ok();
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let bill: Credentials = Credentials {
+            email: "bill@example.com".to_string(),
+            password: "scientist".to_string()
+        };
+        let jwt = login(&server, &bill).await;
+        server.get("/outgoing-friend-requests/")
+            .add_header("Authorization", format!("jwt {}", jwt))
+            .await
+            .assert_status_ok();
+    }
+
+    #[tokio::test]
+    async fn luna_sends_fr_to_noel() {
+        dotenv::dotenv().ok();
+        let server = TestServer::new(app::create_app().await).unwrap();
+        // login as noel
+        let noel: Credentials = Credentials {
+            email: "noel@example.com".to_string(),
+            password: "knight".to_string()
+        };
+        let noel_jwt = login(&server, &noel).await;
+        // change noel's tag
+        let new_tag = NewTag {
+            new_tag: "2019".to_string()
+        };
+        server.put("/tag/")
+            .add_header("Authorization", format!("jwt {}", noel_jwt))
+            .json::<NewTag>(&new_tag)
+            .await
+            .assert_status_ok();
+        // login as luna
+        let luna: Credentials = Credentials {
+            email: "luna@example.com".to_string(),
+            password: "princess".to_string()
+        };
+        let luna_jwt = login(&server, &luna).await;
+        // send fr to noel
+        let friend_request = FriendRequest {
+            username: "noel".to_string(),
+            tag: "2019".to_string()
+        };
+        server.post("/friend-request/")
+            .add_header("Authorization", format!("jwt {}", luna_jwt))
+            .json::<FriendRequest>(&friend_request)
+            .await
+            .assert_status_ok();
+        // noel can see someone on her friends list
+        let noel_jwt = login(&server, &noel).await;
+        let response = server.get("/incoming-friend-requests/")
+            .add_header("Authorization", format!("jwt {}", noel_jwt))
+            .await
+            .json::<Vec<Friend>>();
+        assert_ne!(response.len(), 0);
+    }
 }

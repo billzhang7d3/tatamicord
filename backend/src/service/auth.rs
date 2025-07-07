@@ -130,15 +130,15 @@ pub async fn authenticated(header: &HeaderMap) -> Result<UserJwt, String> {
     }
     // println!("jwt_type: |{}|", jwt_type.unwrap().to_string());
     let validation = Validation::new(Algorithm::HS256);
-    let decoded = decode::<UserJwt>(
+    let decoded_result = decode::<UserJwt>(
         &jwt.unwrap().to_string(),
         &DecodingKey::from_secret(get_encoding_secret().as_ref()),
         &validation
     );
-    if decoded.is_err() {
-        return Err("Cannot decode token")?;
-    }
-    return Ok(decoded.unwrap().claims);
+    return match decoded_result {
+        Ok(decoded) => Ok(decoded.claims),
+        Err(_err) => Err("Cannot decode token")?
+    };
 }
  // TODO: do one last check for decoded is_err()
 
