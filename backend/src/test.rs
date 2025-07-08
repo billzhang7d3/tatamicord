@@ -93,7 +93,7 @@ mod login_tests {
 }
 
 #[cfg(test)]
-mod member_change_tests {
+mod member_tests {
     use axum_test::TestServer;
     use serde::{Serialize, Deserialize};
 
@@ -186,6 +186,21 @@ mod member_change_tests {
             .json::<NewTag>(&new_tag)
             .await
             .assert_status_conflict();
+    }
+
+    #[tokio::test]
+    async fn member_get_own_info() {
+        dotenv::dotenv().ok();
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let kiara: Credentials = Credentials {
+            email: "kiara@example.com".to_string(),
+            password: "phoenix".to_string()
+        };
+        let jwt = login(&server, &kiara).await;
+        server.get("/userinfo/self/")
+            .add_header("Authorization", format!("jwt {}", jwt))
+            .await
+            .assert_status_ok();
     }
 }
 

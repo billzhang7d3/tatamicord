@@ -15,6 +15,34 @@ pub struct NewTag {
     pub new_tag: String
 }
 
+// TODO: need a types channel
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Member {
+    id: String,  // will be encrypted
+    username: String,
+    tag: String
+}
+
+pub async fn get_info(client: &Arc<Client>, id: String) -> Option<Member> {
+    let query = r#"
+SELECT id::VARCHAR, username, tag
+FROM member
+WHERE id::TEXT = $1::TEXT;
+"#;
+    let row_result = client
+        .query_one(query, &[&id])
+        .await;
+    if row_result.is_err() {
+        return None;
+    }
+    let row = row_result.unwrap();
+    return Some(Member {
+        id: row.get::<&str, String>("id"),
+        username: row.get::<&str, String>("username"),
+        tag: row.get::<&str, String>("tag")
+    });
+}
+
 pub async fn change_username(client: &Arc<Client>, id: String, new_name: String) -> bool {
     let query = r#"
 UPDATE member

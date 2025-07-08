@@ -8,7 +8,7 @@ use tokio_postgres::{Client, Row};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Friend {
-    id: String,  // will be encrypted
+    id: String,
     username: String,
     tag: String
 }

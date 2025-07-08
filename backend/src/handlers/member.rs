@@ -7,8 +7,42 @@ use axum::{
     response::IntoResponse
 };
 use http::HeaderMap;
+use serde::{Serialize, Deserialize};
 use std::sync::Arc;
 use tokio_postgres::Client;
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Member {
+    pub id: String,  // will be encrypted
+    pub username: String,
+    pub tag: String
+}
+
+pub async fn get_info_self(
+    headers: HeaderMap,
+    State(client): State<Arc<Client>>,
+) -> impl IntoResponse {
+    // auth
+    let auth_result = auth::authenticated(&headers).await;
+    if auth_result.is_err() {
+        return (
+            StatusCode::NOT_FOUND,
+            "{\"error\":\"Not Found.\"}"
+        ).into_response();
+    }
+    // get user info
+    let id = auth_result.unwrap().id;
+    return match member::get_info(&client, id).await {
+        Some(user) => (
+            StatusCode::OK,
+            serde_json::to_string(&user).unwrap()
+        ).into_response(),
+        None => (
+            StatusCode::NOT_FOUND,
+            "{\"error\":\"Not Found.\"}"
+        ).into_response()
+    }
+}
 
 pub async fn change_username_handler(
     headers: HeaderMap,
