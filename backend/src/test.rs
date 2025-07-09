@@ -97,6 +97,7 @@ mod member_tests {
     use axum_test::TestServer;
     use serde::{Serialize, Deserialize};
 
+    use crate::handlers::member::Member;
     use crate::service::auth::{Credentials};
     use crate::service::member::{NewUsername};
     use crate::app;
@@ -199,6 +200,32 @@ mod member_tests {
         let jwt = login(&server, &kiara).await;
         server.get("/userinfo/self/")
             .add_header("Authorization", format!("jwt {}", jwt))
+            .await
+            .assert_status_ok();
+    }
+
+    #[tokio::test]
+    async fn choco_get_polka_info() {
+        dotenv::dotenv().ok();
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let polka: Credentials = Credentials {
+            email: "polka@example.com".to_string(),
+            password: "performer".to_string()
+        };
+        let polka_jwt = login(&server, &polka).await;
+        let polka_id = server.get("/userinfo/self/")
+            .add_header("Authorization", format!("jwt {}", polka_jwt))
+            .await
+            .json::<Member>()
+            .id;
+        // log in as choco to get polka's info
+        let choco: Credentials = Credentials {
+            email: "choco@example.com".to_string(),
+            password: "nurse".to_string()
+        };
+        let choco_jwt = login(&server, &choco).await;
+        server.get(&format!("/userinfo/{}/", polka_id))
+            .add_header("Authorization", format!("jwt {}", choco_jwt))
             .await
             .assert_status_ok();
     }

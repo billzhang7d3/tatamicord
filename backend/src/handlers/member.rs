@@ -1,10 +1,7 @@
 use crate::service::{auth, member};
 
 use axum::{
-    Json,
-    extract::State,
-    http::StatusCode,
-    response::IntoResponse
+    extract::{Path, State}, http::StatusCode, response::IntoResponse, Json
 };
 use http::HeaderMap;
 use serde::{Serialize, Deserialize};
@@ -18,9 +15,10 @@ pub struct Member {
     pub tag: String
 }
 
-pub async fn get_info_self(
+pub async fn get_info(
+    Path(id): Path<String>,
     headers: HeaderMap,
-    State(client): State<Arc<Client>>,
+    State(client): State<Arc<Client>>
 ) -> impl IntoResponse {
     // auth
     let auth_result = auth::authenticated(&headers).await;
@@ -30,9 +28,9 @@ pub async fn get_info_self(
             "{\"error\":\"Not Found.\"}"
         ).into_response();
     }
+    let final_id = if id == "self" { auth_result.unwrap().id } else {id} ;
     // get user info
-    let id = auth_result.unwrap().id;
-    return match member::get_info(&client, id).await {
+    return match member::get_info(&client, final_id).await {
         Some(user) => (
             StatusCode::OK,
             serde_json::to_string(&user).unwrap()
