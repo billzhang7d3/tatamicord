@@ -128,7 +128,6 @@ RETURNING *;
     let rows_result = client
         .query(query, &[&id, &recipient.username, &recipient.tag])
         .await;
-    println!("rows result error: {}", rows_result.is_err());
     return match rows_result {
         Ok(rows) => if rows.len() > 0 {Ok(())} else {Err(FriendRequestError::FriendRequestExists)},
         Err(_err) => Err(FriendRequestError::AlreadyFriends),

@@ -441,7 +441,6 @@ mod friend_tests {
             .await
             .json::<Member>()
             .tag;
-        println!("checkpoint");
         // dan gets his own id
         let comedian_id = server.get("/userinfo/self/")
             .add_header("Authorization", format!("jwt {}", comedian_jwt))
