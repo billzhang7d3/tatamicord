@@ -235,6 +235,7 @@ mod member_tests {
 mod friend_tests {
     use axum_test::TestServer;
     use serde::{Serialize, Deserialize};
+    use crate::handlers::member::Member;
     use crate::service::auth::{Credentials};
 
     use crate::app;
@@ -372,5 +373,102 @@ mod friend_tests {
             .await
             .json::<Vec<Friend>>();
         assert_ne!(response.len(), 0);
+    }
+
+    #[tokio::test]
+    async fn violet_accepts_fr_from_cecilia() {
+        dotenv::dotenv().ok();
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let violet: Credentials = Credentials {
+            email: "violet@example.com".to_string(),
+            password: "transcriber".to_string()
+        };
+        let cecilia: Credentials = Credentials {
+            email: "cecilia@example.com".to_string(),
+            password: "doll".to_string()
+        };
+        let cecilia_jwt = login(&server, &cecilia).await;
+        let violet_jwt = login(&server, &violet).await;
+        // change violet tag
+        let new_tag = NewTag {
+            new_tag: "2018".to_string()
+        };
+        server.put("/tag/")
+            .add_header("Authorization", format!("jwt {}", violet_jwt))
+            .json::<NewTag>(&new_tag)
+            .await
+            .assert_status_ok();
+        // cecilia gets her own id
+        let cecilia_id = server.get("/userinfo/self/")
+            .add_header("Authorization", format!("jwt {}", cecilia_jwt))
+            .await
+            .json::<Member>()
+            .id;
+        // cecilia sends a fr
+        let friend_request = FriendRequest {
+            username: "violet".to_string(),
+            tag: "2018".to_string()
+        };
+        server.post("/friend-request/")
+            .add_header("Authorization", format!("jwt {}", cecilia_jwt))
+            .json::<FriendRequest>(&friend_request)
+            .await
+            .assert_status_ok();
+        // violet accepts fr
+        server.put(&format!("/friend-request/{}/", cecilia_id))
+            .add_header("Authorization", format!("jwt {}", violet_jwt))
+            .await
+            .assert_status_ok();
+    }
+
+    #[tokio::test]
+    async fn once_friends_cant_resend_fr() {
+        dotenv::dotenv().ok();
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let comedian: Credentials = Credentials {
+            email: "dan@example.com".to_string(),
+            password: "comedian".to_string()
+        };
+        let composer: Credentials = Credentials {
+            email: "dan1@example.com".to_string(),
+            password: "composer".to_string()
+        };
+        let comedian_jwt = login(&server, &comedian).await;
+        let composer_jwt = login(&server, &composer).await;
+        // dan finds out what his tag is
+        let composer_tag = server.get("/userinfo/self/")
+            .add_header("Authorization", format!("jwt {}", composer_jwt))
+            .await
+            .json::<Member>()
+            .tag;
+        println!("checkpoint");
+        // dan gets his own id
+        let comedian_id = server.get("/userinfo/self/")
+            .add_header("Authorization", format!("jwt {}", comedian_jwt))
+            .await
+            .json::<Member>()
+            .id;
+        // dan sends a fr
+        let friend_request = FriendRequest {
+            username: "dan".to_string(),
+            tag: composer_tag
+        };
+        server.post("/friend-request/")
+            .add_header("Authorization", format!("jwt {}", comedian_jwt))
+            .json::<FriendRequest>(&friend_request)
+            .await
+            .assert_status_ok();
+        // dan accepts fr
+        server.put(&format!("/friend-request/{}/", comedian_id))
+            .add_header("Authorization", format!("jwt {}", composer_jwt))
+            .await
+            .assert_status_ok();
+        // dan sends fr again
+        server.post("/friend-request/")
+            .add_header("Authorization", format!("jwt {}", comedian_jwt))
+            .json::<FriendRequest>(&friend_request)
+            .await
+            .assert_status_forbidden();
+
     }
 }

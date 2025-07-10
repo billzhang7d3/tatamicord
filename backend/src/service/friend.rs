@@ -20,6 +20,13 @@ pub struct FriendRequest {
     pub tag: String
 }
 
+pub enum FriendRequestError {
+    FriendNotExists,
+    FriendRequestExists,
+    AlreadyFriends,
+    Blocked
+}
+
 pub async fn get_friends(client: &Arc<Client>, id: String) -> Vec<Friend> {
     let query = r#"
 SELECT id::VARCHAR, username, tag
@@ -97,7 +104,11 @@ WHERE fr.receiver::TEXT = $1::TEXT;
         .collect();
 }
 
-pub async fn send_friend_request(client: &Arc<Client>, id: String, recipient: FriendRequest) -> bool {
+pub async fn send_friend_request(
+    client: &Arc<Client>,
+    id: String,
+    recipient: FriendRequest
+) -> Result<(), FriendRequestError> {
     let query = r#"
 INSERT INTO friend_requests (
     sender,
@@ -117,8 +128,33 @@ RETURNING *;
     let rows_result = client
         .query(query, &[&id, &recipient.username, &recipient.tag])
         .await;
+    println!("rows result error: {}", rows_result.is_err());
     return match rows_result {
-        Ok(rows) => rows.len() > 0,
-        Err(_err) => false,
+        Ok(rows) => if rows.len() > 0 {Ok(())} else {Err(FriendRequestError::FriendRequestExists)},
+        Err(_err) => Err(FriendRequestError::AlreadyFriends),
+    };
+}
+
+pub async fn accept_friend_request(
+    client: &Arc<Client>,
+    sender_id: String,
+    receiver_id: String
+) -> Result<(), String> {
+    let query = r#"
+INSERT INTO friendship (
+    id1,
+    id2
+)
+VALUES (
+    CAST($1::TEXT AS UUID),
+    CAST($2::TEXT AS UUID)
+) RETURNING id1::VARCHAR, id2::VARCHAR;
+"#;
+    let row = client
+        .query(query, &[&sender_id, &receiver_id])
+        .await;
+    return match row {
+        Ok(_) => Ok(()),
+        Err(err) => Err(err.to_string())
     };
 }

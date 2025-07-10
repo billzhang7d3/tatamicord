@@ -17,13 +17,15 @@ CREATE TABLE member (
 
 DROP TABLE IF EXISTS friendship CASCADE;
 
-CREATE table friendship(
+CREATE TABLE friendship(
     id1 UUID REFERENCES member(id),
     id2 UUID REFERENCES member(id),
     PRIMARY KEY (id1, id2)
 );
 
-CREATE table friend_requests(
+DROP TABLE IF EXISTS friend_requests CASCADE;
+
+CREATE TABLE friend_requests(
     sender UUID REFERENCES member(id),
     receiver UUID REFERENCES member(id),
     PRIMARY KEY (sender, receiver)

@@ -110,7 +110,9 @@ AND crypt($2::TEXT, login_info->>'pw_hash') = login_info->>'pw_hash';
 }
 
 pub async fn authenticated(header: &HeaderMap) -> Result<UserJwt, String> {
+    println!("fuck you");
     let jwt_option = header.get("Authorization");
+    println!("jwt option: {}", jwt_option.is_some());
     if jwt_option.is_none() {
         return Err("Authorization header not found")?;
     }
@@ -121,6 +123,7 @@ pub async fn authenticated(header: &HeaderMap) -> Result<UserJwt, String> {
         .to_string();
     let mut jwt_split = full_jwt.split(' ');
     let jwt_type = jwt_split.next();
+    println!("jwt type: {}", jwt_type.is_some());
     if jwt_type.is_none() {
         return Err("Authorization header empty")?;
     }

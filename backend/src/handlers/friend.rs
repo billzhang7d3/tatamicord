@@ -1,7 +1,7 @@
-use crate::service::{auth, friend::{self, send_friend_request}};
+use crate::service::{auth, friend::{self, send_friend_request, FriendRequestError}};
 
 use axum::{
-    extract::State,
+    extract::{Path, State},
     http::StatusCode,
     response::IntoResponse, Json
 };
@@ -87,15 +87,52 @@ pub async fn send_fr_handler(
     }
     // send friend request
     let id = auth_result.unwrap().id;
-    if send_friend_request(&client, id, body).await {
-        return (
+    match send_friend_request(&client, id, body).await {
+        Ok(()) => (
             StatusCode::OK,
             "{\"result\":\"Friend Request Sent.\"}"
-        ).into_response();
-    } else {
+        ).into_response(),
+        Err(FriendRequestError::AlreadyFriends) => (
+            StatusCode::FORBIDDEN,
+            "{\"error\":\"Friend Request Forbidden: Already Friends.\"}"
+        ).into_response(),
+        Err(FriendRequestError::FriendRequestExists) => (
+            StatusCode::CONFLICT,
+            "{\"error\":\"Friend Request Exists.\"}"
+        ).into_response(),
+        Err(_) => (
+            StatusCode::NOT_FOUND,
+            "{\"error\":\"Friend Not Found.\"}"
+        ).into_response()
+    }
+}
+
+pub async fn accept_fr_handler(
+    Path(id): Path<String>,
+    headers: HeaderMap,
+    State(client): State<Arc<Client>>
+) -> impl IntoResponse {
+    // auth
+    let auth_result = auth::authenticated(&headers).await;
+    if auth_result.is_err() {
         return (
             StatusCode::NOT_FOUND,
-            "{\"error\":\"User Not Found.\"}"
+            "{\"error\":\"Not Found.\"}"
         ).into_response();
+    }
+    // accept friend request
+    let receiver_id = auth_result.unwrap().id;
+    return match friend::accept_friend_request(&client, id, receiver_id).await {
+        Ok(_) => (
+            StatusCode::OK,
+            "{\"result\":\"Friend Request Accepted.\"}"
+        ).into_response(),
+        Err(err) => {
+            println!("err: {}", err);
+            return (
+                StatusCode::FORBIDDEN,
+                "{\"error\":\"TODO: add error cases.\"}"
+            ).into_response();
+        }
     }
 }
