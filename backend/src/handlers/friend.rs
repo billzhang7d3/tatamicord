@@ -100,7 +100,7 @@ pub async fn send_fr_handler(
             StatusCode::CONFLICT,
             "{\"error\":\"Friend Request Exists.\"}"
         ).into_response(),
-        Err(_) => (
+        Err(FriendRequestError::FriendNotExists) => (
             StatusCode::NOT_FOUND,
             "{\"error\":\"Friend Not Found.\"}"
         ).into_response()

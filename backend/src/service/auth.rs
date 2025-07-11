@@ -17,10 +17,9 @@ use std::{
 use tokio_postgres::{Client, Row};
 
 #[derive(PartialEq)]
-pub enum RegistrationStatus {
+pub enum RegistrationError {
     UsernameError,
-    RegistrationError,
-    Registered,
+    RegistrationError
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -44,7 +43,10 @@ pub struct UserJwt {
     pub exp: i64,
 }
 
-pub async fn register(client: &Arc<Client>, register_info: RegisterInfo) -> RegistrationStatus {
+pub async fn register(
+    client: &Arc<Client>,
+    register_info: RegisterInfo
+) -> Result<(), RegistrationError> {
     let query = r#"
 INSERT INTO member (
     username,
@@ -69,12 +71,12 @@ RETURNING *;"#;
         )
         .await;
     return match rows_result {
-        Ok(_) => RegistrationStatus::Registered,
+        Ok(_) => Ok(()),
         Err(_err) => {
             if _err.to_string() == "db error: ERROR: all tags taken" {
-                return RegistrationStatus::UsernameError;
+                return Err(RegistrationError::UsernameError);
             }
-            return RegistrationStatus::RegistrationError;
+            Err(RegistrationError::RegistrationError)
         },
     };
 }

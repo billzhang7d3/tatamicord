@@ -25,30 +25,30 @@ mod login_tests {
         assert_eq!(response.status_code(), 401);
     }
 
-    // #[tokio::test]
-    // async fn register_chloe() {
-    //     dotenv::dotenv().ok();
-    //     // first we register
-    //     let chloe_register: RegisterInfo = RegisterInfo  {
-    //         username: "chloe".to_string(),
-    //         email: "chloe@example.com".to_string(),
-    //         password: "whale".to_string()
-    //     };
-    //     let chloe_login: Credentials = Credentials  {
-    //         email: "chloe@example.com".to_string(),
-    //         password: "whale".to_string()
-    //     };
-    //     let server = TestServer::new(app::create_app().await).unwrap();
-    //     let response = server.post("/register/")
-    //         .json::<RegisterInfo>(&chloe_register)
-    //         .await;
-    //     assert_eq!(response.status_code(), 200);
-    //     // then we login and it works
-    //     let response = server.post("/login/")
-    //         .json::<Credentials>(&chloe_login)
-    //         .await;
-    //     assert_eq!(response.status_code(), 200);
-    // }
+    #[tokio::test]
+    async fn register_chloe() {
+        dotenv::dotenv().ok();
+        // first we register
+        let chloe_register: RegisterInfo = RegisterInfo  {
+            username: "chloe".to_string(),
+            email: "chloe@example.com".to_string(),
+            password: "whale".to_string()
+        };
+        let chloe_login: Credentials = Credentials  {
+            email: "chloe@example.com".to_string(),
+            password: "whale".to_string()
+        };
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let response = server.post("/register/")
+            .json::<RegisterInfo>(&chloe_register)
+            .await;
+        assert_eq!(response.status_code(), 200);
+        // then we login and it works
+        let response = server.post("/login/")
+            .json::<Credentials>(&chloe_login)
+            .await;
+        assert_eq!(response.status_code(), 200);
+    }
 
     #[tokio::test]
     async fn duplicate_email_not_allowed() {
@@ -228,6 +228,21 @@ mod member_tests {
             .add_header("Authorization", format!("jwt {}", choco_jwt))
             .await
             .assert_status_ok();
+    }
+
+    #[tokio::test]
+    async fn cant_find_rando_info() {
+        dotenv::dotenv().ok();
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let polka: Credentials = Credentials {
+            email: "polka@example.com".to_string(),
+            password: "performer".to_string()
+        };
+        let jwt = login(&server, &polka).await;
+        server.get("/userinfo/00000000-0000-0000-0000-000000000000/")
+            .add_header("Authorization", format!("jwt {}", jwt))
+            .await
+            .assert_status_not_found();
     }
 }
 
@@ -422,7 +437,7 @@ mod friend_tests {
     }
 
     #[tokio::test]
-    async fn once_friends_cant_resend_fr() {
+    async fn cant_send_fr_if_friends() {
         dotenv::dotenv().ok();
         let server = TestServer::new(app::create_app().await).unwrap();
         let comedian: Credentials = Credentials {
@@ -468,6 +483,81 @@ mod friend_tests {
             .json::<FriendRequest>(&friend_request)
             .await
             .assert_status_forbidden();
+    }
+    #[tokio::test]
+    async fn cant_send_fr_if_pending() {
+        dotenv::dotenv().ok();
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let choco: Credentials = Credentials {
+            email: "choco@example.com".to_string(),
+            password: "nurse".to_string()
+        };
+        let polka: Credentials = Credentials {
+            email: "polka@example.com".to_string(),
+            password: "performer".to_string()
+        };
+        let choco_jwt = login(&server, &choco).await;
+        let polka_jwt = login(&server, &polka).await;
+        // choco finds out what her tag is
+        let choco_tag = server.get("/userinfo/self/")
+            .add_header("Authorization", format!("jwt {}", choco_jwt))
+            .await
+            .json::<Member>()
+            .tag;
+        // polka sends a fr
+        let friend_request = FriendRequest {
+            username: "choco".to_string(),
+            tag: choco_tag
+        };
+        server.post("/friend-request/")
+            .add_header("Authorization", format!("jwt {}", polka_jwt))
+            .json::<FriendRequest>(&friend_request)
+            .await
+            .assert_status_ok();
+        // polka sends fr again
+        server.post("/friend-request/")
+            .add_header("Authorization", format!("jwt {}", polka_jwt))
+            .json::<FriendRequest>(&friend_request)
+            .await
+            .assert_status_conflict();
+    }
 
+    #[tokio::test]
+    async fn send_to_nonexistent_friend() {
+        dotenv::dotenv().ok();
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let bill: Credentials = Credentials {
+            email: "bill@example.com".to_string(),
+            password: "scientist".to_string()
+        };
+        let friend_request = FriendRequest {
+            username: "zhang".to_string(),
+            tag: "8888".to_string()
+        };
+        let jwt = login(&server, &bill).await;
+        server.post("/friend-request/")
+            .add_header("Authorization", format!("jwt {}", jwt))
+            .json::<FriendRequest>(&friend_request)
+            .await
+            .assert_status_not_found();
+    }
+
+    async fn accept_a_nonexistent_fr() {
+        dotenv::dotenv().ok();
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let bill: Credentials = Credentials {
+            email: "bill@example.com".to_string(),
+            password: "scientist".to_string()
+        };
+        let friend_request = FriendRequest {
+            username: "zhang".to_string(),
+            tag: "8888".to_string()
+        };
+        let jwt = login(&server, &bill).await;
+        server.post("/friend-request/")
+            .add_header("Authorization", format!("jwt {}", jwt))
+            .json::<FriendRequest>(&friend_request)
+            .await
+            .assert_status_not_found();
     }
 }

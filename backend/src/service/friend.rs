@@ -21,10 +21,9 @@ pub struct FriendRequest {
 }
 
 pub enum FriendRequestError {
-    FriendNotExists,
+    FriendNotExists,  // also encodes blocked
     FriendRequestExists,
-    AlreadyFriends,
-    Blocked
+    AlreadyFriends
 }
 
 pub async fn get_friends(client: &Arc<Client>, id: String) -> Vec<Friend> {
@@ -125,12 +124,19 @@ VALUES (
 )
 RETURNING *;
 "#;
-    let rows_result = client
-        .query(query, &[&id, &recipient.username, &recipient.tag])
+    let row_result = client
+        .query_one(query, &[&id, &recipient.username, &recipient.tag])
         .await;
-    return match rows_result {
-        Ok(rows) => if rows.len() > 0 {Ok(())} else {Err(FriendRequestError::FriendRequestExists)},
-        Err(_err) => Err(FriendRequestError::AlreadyFriends),
+    return match row_result {
+        Ok(_row) => Ok(()),
+        Err(err) => {
+            if err.to_string() == "db error: ERROR: already friends" {
+                return Err(FriendRequestError::AlreadyFriends);
+            } else if err.to_string() == "db error: ERROR: already sent" {
+                return Err(FriendRequestError::FriendRequestExists);
+            }
+            Err(FriendRequestError::FriendNotExists)
+        },
     };
 }
 
