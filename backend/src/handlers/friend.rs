@@ -127,12 +127,36 @@ pub async fn accept_fr_handler(
             StatusCode::OK,
             "{\"result\":\"Friend Request Accepted.\"}"
         ).into_response(),
-        Err(err) => {
-            println!("err: {}", err);
-            return (
-                StatusCode::FORBIDDEN,
-                "{\"error\":\"TODO: add error cases.\"}"
-            ).into_response();
-        }
+        Err(_err) => (
+            StatusCode::NOT_FOUND,
+            "{\"error\":\"Friend request not found.\"}"
+        ).into_response()
+    }
+}
+
+pub async fn deny_fr_handler(
+    Path(id): Path<String>,
+    headers: HeaderMap,
+    State(client): State<Arc<Client>>
+) -> impl IntoResponse {
+    // auth
+    let auth_result = auth::authenticated(&headers).await;
+    if auth_result.is_err() {
+        return (
+            StatusCode::NOT_FOUND,
+            "{\"error\":\"Not Found.\"}"
+        ).into_response();
+    }
+    // deny friend request
+    let receiver_id = auth_result.unwrap().id;
+    return match friend::delete_friend_request(&client, receiver_id, id).await {
+        Ok(_) => (
+            StatusCode::OK,
+            "{\"result\":\"Friend Request Rejected.\"}"
+        ).into_response(),
+        Err(_err) => (
+            StatusCode::NOT_FOUND,
+            "{\"error\":\"Friend request not found.\"}"
+        ).into_response()
     }
 }

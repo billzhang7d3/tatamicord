@@ -23,9 +23,9 @@ CREATE TABLE friendship(
     PRIMARY KEY (id1, id2)
 );
 
-DROP TABLE IF EXISTS friend_requests CASCADE;
+DROP TABLE IF EXISTS friend_request CASCADE;
 
-CREATE TABLE friend_requests(
+CREATE TABLE friend_request(
     sender UUID REFERENCES member(id),
     receiver UUID REFERENCES member(id),
     PRIMARY KEY (sender, receiver)

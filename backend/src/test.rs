@@ -434,6 +434,12 @@ mod friend_tests {
             .add_header("Authorization", format!("jwt {}", violet_jwt))
             .await
             .assert_status_ok();
+        // violet can see friendship
+        let response = server.get("/friends/")
+            .add_header("Authorization", format!("jwt {}", violet_jwt))
+            .await
+            .json::<Vec<Member>>();
+        assert_eq!(response.len(), 1);
     }
 
     #[tokio::test]
@@ -472,6 +478,12 @@ mod friend_tests {
             .json::<FriendRequest>(&friend_request)
             .await
             .assert_status_ok();
+        // dan sees his outgoing friend requests
+        let response = server.get("/outgoing-friend-requests/")
+            .add_header("Authorization", format!("jwt {}", comedian_jwt))
+            .await
+            .json::<Vec<Friend>>();
+        assert_eq!(response.len(), 1);
         // dan accepts fr
         server.put(&format!("/friend-request/{}/", comedian_id))
             .add_header("Authorization", format!("jwt {}", composer_jwt))
@@ -542,6 +554,7 @@ mod friend_tests {
             .assert_status_not_found();
     }
 
+    #[tokio::test]
     async fn accept_a_nonexistent_fr() {
         dotenv::dotenv().ok();
         let server = TestServer::new(app::create_app().await).unwrap();
@@ -549,14 +562,95 @@ mod friend_tests {
             email: "bill@example.com".to_string(),
             password: "scientist".to_string()
         };
+        let jwt = login(&server, &bill).await;
+        server.put("/friend-request/00000000-0000-0000-0000-000000000000/")
+            .add_header("Authorization", format!("jwt {}", jwt))
+            .await
+            .assert_status_not_found();
+    }
+
+    #[tokio::test]
+    async fn revoke_a_fr() {
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let bill: Credentials = Credentials {
+            email: "bill@example.com".to_string(),
+            password: "scientist".to_string()
+        };
+        let john: Credentials = Credentials {
+            email: "titor@example.com".to_string(),
+            password: "troll".to_string()
+        };
+        let bill_jwt = login(&server, &bill).await;
+        let john_jwt = login(&server, &john).await;
+        // send FR to john
+        let john_info = server.get("/userinfo/self/")
+            .add_header("Authorization", format!("jwt {}", john_jwt))
+            .await
+            .json::<Member>();
         let friend_request = FriendRequest {
-            username: "zhang".to_string(),
-            tag: "8888".to_string()
+            username: "john".to_string(),
+            tag: john_info.tag
+        };
+        server.post("/friend-request/")
+            .add_header("Authorization", format!("jwt {}", bill_jwt))
+            .json::<FriendRequest>(&friend_request)
+            .await
+            .assert_status_ok();
+        server.delete(&format!("/friend-request/{}/", john_info.id))
+            .add_header("Authorization", format!("jwt {}", bill_jwt))
+            .await
+            .assert_status_ok();
+    }
+
+    #[tokio::test]
+    async fn deny_a_fr() {
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let bill: Credentials = Credentials {
+            email: "bill@example.com".to_string(),
+            password: "scientist".to_string()
+        };
+        let christina: Credentials = Credentials {
+            email: "christina@example.com".to_string(),
+            password: "tsundere".to_string()
+        };
+        let bill_jwt = login(&server, &bill).await;
+        let christina_jwt = login(&server, &christina).await;
+        // send FR to john
+        let christina_tag = server.get("/userinfo/self/")
+            .add_header("Authorization", format!("jwt {}", christina_jwt))
+            .await
+            .json::<Member>()
+            .tag;
+        let bill_id = server.get("/userinfo/self/")
+            .add_header("Authorization", format!("jwt {}", bill_jwt))
+            .await
+            .json::<Member>()
+            .id;
+        let friend_request = FriendRequest {
+            username: "christina".to_string(),
+            tag: christina_tag
+        };
+        server.post("/friend-request/")
+            .add_header("Authorization", format!("jwt {}", bill_jwt))
+            .json::<FriendRequest>(&friend_request)
+            .await
+            .assert_status_ok();
+        server.delete(&format!("/friend-request/{}/", bill_id))
+            .add_header("Authorization", format!("jwt {}", christina_jwt))
+            .await
+            .assert_status_ok();
+    }
+
+    #[tokio::test]
+    async fn delete_a_nonexistent_fr() {
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let bill: Credentials = Credentials {
+            email: "bill@example.com".to_string(),
+            password: "scientist".to_string()
         };
         let jwt = login(&server, &bill).await;
-        server.post("/friend-request/")
+        server.delete("/friend-request/00000000-0000-0000-0000-000000000000/")
             .add_header("Authorization", format!("jwt {}", jwt))
-            .json::<FriendRequest>(&friend_request)
             .await
             .assert_status_not_found();
     }

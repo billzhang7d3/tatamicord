@@ -59,7 +59,7 @@ pub async fn get_outgoing_friend_requests(client: &Arc<Client>, id: String) -> V
     let query = r#"
 SELECT m.id::VARCHAR, m.username, m.tag
 FROM member m
-INNER JOIN friend_requests fr
+INNER JOIN friend_request fr
 ON m.id = fr.receiver
 WHERE fr.sender::TEXT = $1::TEXT;
 "#;
@@ -83,7 +83,7 @@ pub async fn get_incoming_friend_requests(client: &Arc<Client>, id: String) -> V
     let query = r#"
 SELECT m.id::VARCHAR, m.username, m.tag
 FROM member m
-INNER JOIN friend_requests fr
+INNER JOIN friend_request fr
 ON m.id = fr.sender
 WHERE fr.receiver::TEXT = $1::TEXT;
 "#;
@@ -109,7 +109,7 @@ pub async fn send_friend_request(
     recipient: FriendRequest
 ) -> Result<(), FriendRequestError> {
     let query = r#"
-INSERT INTO friend_requests (
+INSERT INTO friend_request (
     sender,
     receiver
 )
@@ -156,10 +156,30 @@ VALUES (
 ) RETURNING id1::VARCHAR, id2::VARCHAR;
 "#;
     let row = client
-        .query(query, &[&sender_id, &receiver_id])
+        .query_one(query, &[&sender_id, &receiver_id])
         .await;
     return match row {
         Ok(_) => Ok(()),
-        Err(err) => Err(err.to_string())
+        Err(_err) => Err("nonexistent friend request".to_string())
     };
+}
+
+pub async fn delete_friend_request(
+    client: &Arc<Client>,
+    sender_id: String,
+    receiver_id: String
+) -> Result<(), String> {
+    let query = r#"
+DELETE FROM friend_request
+WHERE (sender::TEXT = $1::TEXT AND receiver::TEXT = $2::TEXT)
+OR (sender::TEXT = $2::TEXT AND receiver::TEXT = $1::TEXT)
+RETURNING *;
+"#;
+    let row = client
+        .query_one(query, &[&sender_id, &receiver_id])
+        .await;
+    return match row {
+        Ok(_) => Ok(()),
+        Err(_err) => Err("nonexistent friend request".to_string())
+    }
 }

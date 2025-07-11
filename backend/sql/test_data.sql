@@ -73,4 +73,16 @@ INSERT INTO member (
         'email', 'dan1@example.com',
         'pw_hash', crypt('composer', gen_salt('bf'))
     )
+), (
+    'john',
+    jsonb_build_object(
+        'email', 'titor@example.com',
+        'pw_hash', crypt('troll', gen_salt('bf'))
+    )
+), (
+    'christina',
+    jsonb_build_object(
+        'email', 'christina@example.com',
+        'pw_hash', crypt('tsundere', gen_salt('bf'))
+    )
 );

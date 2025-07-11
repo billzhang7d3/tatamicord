@@ -1,5 +1,5 @@
 use axum::{
-    routing::{get, post, put},
+    routing::{delete, get, post, put},
     Router
 };
 use http::header::{AUTHORIZATION, CONTENT_TYPE};
@@ -50,6 +50,7 @@ pub async fn create_app() -> Router {
         .route("/outgoing-friend-requests/", get(handlers::friend::get_outgoing_fr_handler))
         .route("/friend-request/", post(handlers::friend::send_fr_handler))
         .route("/friend-request/{id}/", put(handlers::friend::accept_fr_handler))
+        .route("/friend-request/{id}/", delete(handlers::friend::deny_fr_handler))
         .route("/userinfo/{id}/", get(handlers::member::get_info))
         .route("/username/", put(handlers::member::change_username_handler))
         .route("/tag/", put(handlers::member::change_tag_handler))
