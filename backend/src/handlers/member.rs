@@ -4,16 +4,8 @@ use axum::{
     extract::{Path, State}, http::StatusCode, response::IntoResponse, Json
 };
 use http::HeaderMap;
-use serde::{Serialize, Deserialize};
 use std::sync::Arc;
 use tokio_postgres::Client;
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct Member {
-    pub id: String,  // will be encrypted
-    pub username: String,
-    pub tag: String
-}
 
 pub async fn get_info(
     Path(id): Path<String>,

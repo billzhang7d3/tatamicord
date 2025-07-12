@@ -1,4 +1,5 @@
-use crate::service::{auth, friend::{self, send_friend_request, FriendRequestError}};
+use crate::service::{auth, friend::{self, send_friend_request}};
+use crate::types::{FriendRequest, FriendRequestError, Member};
 
 use axum::{
     extract::{Path, State},
@@ -23,7 +24,7 @@ pub async fn get_friends_handler(
     }
     // get friends
     let id = auth_result.unwrap().id;
-    let friends_list: Vec<friend::Friend> = friend::get_friends(&client, id).await;
+    let friends_list: Vec<Member> = friend::get_friends(&client, id).await;
     return (
         StatusCode::OK,
         serde_json::to_string(&friends_list).unwrap()
@@ -44,7 +45,7 @@ pub async fn get_incoming_fr_handler(
     }
     // get incoming friend requests
     let id = auth_result.unwrap().id;
-    let friends_list: Vec<friend::Friend> = friend::get_incoming_friend_requests(&client, id).await;
+    let friends_list: Vec<Member> = friend::get_incoming_friend_requests(&client, id).await;
     return (
         StatusCode::OK,
         serde_json::to_string(&friends_list).unwrap()
@@ -65,7 +66,7 @@ pub async fn get_outgoing_fr_handler(
     }
     // get outgoing friend requests
     let id = auth_result.unwrap().id;
-    let friends_list: Vec<friend::Friend> = friend::get_outgoing_friend_requests(&client, id).await;
+    let friends_list: Vec<Member> = friend::get_outgoing_friend_requests(&client, id).await;
     return (
         StatusCode::OK,
         serde_json::to_string(&friends_list).unwrap()
@@ -75,7 +76,7 @@ pub async fn get_outgoing_fr_handler(
 pub async fn send_fr_handler(
     headers: HeaderMap,
     State(client): State<Arc<Client>>,
-    Json(body): Json<friend::FriendRequest>
+    Json(body): Json<FriendRequest>
 ) -> impl IntoResponse {
     // auth
     let auth_result = auth::authenticated(&headers).await;

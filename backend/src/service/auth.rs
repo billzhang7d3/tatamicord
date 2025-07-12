@@ -1,3 +1,5 @@
+use crate::types::{Credentials, RegisterInfo, RegistrationError, UserJwt};
+
 use chrono::{TimeDelta, Utc};
 use dotenv::dotenv;
 use http::HeaderMap;
@@ -9,39 +11,12 @@ use jsonwebtoken::{
     EncodingKey,
     Header,
     Validation};
-use serde::{Deserialize, Serialize};
 use std::{
     env,
     sync::Arc
 };
 use tokio_postgres::{Client, Row};
 
-#[derive(PartialEq)]
-pub enum RegistrationError {
-    UsernameError,
-    RegistrationError
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct Credentials {
-    pub email: String,
-    pub password: String,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct RegisterInfo {
-    pub username: String,
-    pub email: String,
-    pub password: String,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct UserJwt {
-    pub id: String,
-    pub username: String,
-    pub tag: String,
-    pub exp: i64,
-}
 
 pub async fn register(
     client: &Arc<Client>,

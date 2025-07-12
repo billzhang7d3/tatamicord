@@ -1,3 +1,4 @@
+use crate::types::Member;
 use serde::{Deserialize, Serialize};
 use std::{
     // env,
@@ -13,14 +14,6 @@ pub struct NewUsername {
 #[derive(Serialize, Deserialize, Clone)]
 pub struct NewTag {
     pub new_tag: String
-}
-
-// TODO: need a types channel
-#[derive(Serialize, Deserialize, Clone)]
-pub struct Member {
-    id: String,  // will be encrypted
-    username: String,
-    tag: String
 }
 
 pub async fn get_info(client: &Arc<Client>, id: String) -> Option<Member> {

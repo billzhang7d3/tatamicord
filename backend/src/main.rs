@@ -1,6 +1,7 @@
 mod app;
 pub mod service;
 pub mod handlers;
+mod types;
 
 use std::env;
 use dotenv::dotenv;

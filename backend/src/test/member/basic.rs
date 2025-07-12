@@ -3,8 +3,7 @@ mod member_tests {
     use axum_test::TestServer;
     use serde::{Serialize, Deserialize};
 
-    use crate::handlers::member::Member;
-    use crate::service::auth::{Credentials};
+    use crate::types::{Credentials, Member};
     use crate::service::member::{NewUsername};
     use crate::app;
 

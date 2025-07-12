@@ -1,10 +1,10 @@
 #[cfg(test)]
-mod login_tests {
+mod register_tests {
     use axum_test::TestServer;
     use serde::{Serialize, Deserialize};
 
-    use crate::service::auth::{Credentials, RegisterInfo};
     use crate::app;
+    use crate::types::{Credentials, RegisterInfo};
 
     #[derive(Serialize, Deserialize)]
     struct LoginResponse {

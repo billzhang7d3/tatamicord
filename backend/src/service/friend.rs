@@ -1,32 +1,12 @@
 // use dotenv::dotenv;
-use serde::{Deserialize, Serialize};
 use std::{
     // env,
     sync::Arc
 };
 use tokio_postgres::{Client, Row};
+use crate::types::{FriendRequest, FriendRequestError, Member};
 
-#[derive(Serialize, Deserialize, Clone)]
-pub struct Friend {
-    pub id: String,
-    pub username: String,
-    pub tag: String
-}
-// pfp support coming soon
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct FriendRequest {
-    pub username: String,
-    pub tag: String
-}
-
-pub enum FriendRequestError {
-    FriendNotExists,  // also encodes blocked
-    FriendRequestExists,
-    AlreadyFriends
-}
-
-pub async fn get_friends(client: &Arc<Client>, id: String) -> Vec<Friend> {
+pub async fn get_friends(client: &Arc<Client>, id: String) -> Vec<Member> {
     let query = r#"
 SELECT id::VARCHAR, username, tag
 FROM member
@@ -46,7 +26,7 @@ WHERE id IN (
     return rows_result
         .into_iter()
         .map(|row| 
-            Friend {
+            Member {
                 id: row.get::<&str, String>("id"),
                 username: row.get::<&str, String>("username"),
                 tag: row.get::<&str, String>("tag")
@@ -55,7 +35,7 @@ WHERE id IN (
         .collect();
 }
 
-pub async fn get_outgoing_friend_requests(client: &Arc<Client>, id: String) -> Vec<Friend> {
+pub async fn get_outgoing_friend_requests(client: &Arc<Client>, id: String) -> Vec<Member> {
     let query = r#"
 SELECT m.id::VARCHAR, m.username, m.tag
 FROM member m
@@ -70,7 +50,7 @@ WHERE fr.sender::TEXT = $1::TEXT;
     return rows_result
         .into_iter()
         .map(|row| 
-            Friend {
+            Member {
                 id: row.get::<&str, String>("id"),
                 username: row.get::<&str, String>("username"),
                 tag: row.get::<&str, String>("tag")
@@ -79,7 +59,7 @@ WHERE fr.sender::TEXT = $1::TEXT;
         .collect();
 }
 
-pub async fn get_incoming_friend_requests(client: &Arc<Client>, id: String) -> Vec<Friend> {
+pub async fn get_incoming_friend_requests(client: &Arc<Client>, id: String) -> Vec<Member> {
     let query = r#"
 SELECT m.id::VARCHAR, m.username, m.tag
 FROM member m
@@ -94,7 +74,7 @@ WHERE fr.receiver::TEXT = $1::TEXT;
     return rows_result
         .into_iter()
         .map(|row| 
-            Friend {
+            Member {
                 id: row.get::<&str, String>("id"),
                 username: row.get::<&str, String>("username"),
                 tag: row.get::<&str, String>("tag")

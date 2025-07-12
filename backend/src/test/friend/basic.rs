@@ -2,11 +2,9 @@
 mod friend_tests {
     use axum_test::TestServer;
     use serde::{Serialize, Deserialize};
-    use crate::handlers::member::Member;
-    use crate::service::auth::{Credentials};
+    use crate::types::{Credentials, FriendRequest, Member};
 
     use crate::app;
-    use crate::service::friend::{Friend, FriendRequest};
     use crate::service::member::NewTag;
 
     #[derive(Serialize, Deserialize)]
@@ -138,7 +136,7 @@ mod friend_tests {
         let response = server.get("/incoming-friend-requests/")
             .add_header("Authorization", format!("jwt {}", noel_jwt))
             .await
-            .json::<Vec<Friend>>();
+            .json::<Vec<Member>>();
         assert_ne!(response.len(), 0);
     }
 
@@ -234,7 +232,7 @@ mod friend_tests {
         let response = server.get("/outgoing-friend-requests/")
             .add_header("Authorization", format!("jwt {}", comedian_jwt))
             .await
-            .json::<Vec<Friend>>();
+            .json::<Vec<Member>>();
         assert_eq!(response.len(), 1);
         // dan accepts fr
         server.put(&format!("/friend-request/{}/", comedian_id))
@@ -445,7 +443,7 @@ mod friend_tests {
         let friend_list1 = server.get("/friends/")
             .add_header("Authorization", format!("jwt {}", christina_jwt))
             .await
-            .json::<Vec<Friend>>();
+            .json::<Vec<Member>>();
         assert_eq!(friend_list1[0].id, imaginary_info.id);
         server.delete(&format!("/friends/{}/", christina_id))
             .add_header("Authorization", format!("jwt {}", imaginary_jwt))
@@ -454,7 +452,7 @@ mod friend_tests {
         let friend_list2 = server.get("/friends/")
             .add_header("Authorization", format!("jwt {}", christina_jwt))
             .await
-            .json::<Vec<Friend>>();
+            .json::<Vec<Member>>();
         assert_eq!(friend_list2.len(), 0);
     }
 

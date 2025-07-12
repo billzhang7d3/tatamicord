@@ -1,4 +1,5 @@
 use crate::service::auth;
+use crate::types::{Credentials, RegisterInfo, RegistrationError};
 
 use axum::{
     Json,
@@ -11,18 +12,18 @@ use tokio_postgres::Client;
 
 pub async fn register_handler(
     State(client): State<Arc<Client>>,
-    Json(body): Json<auth::RegisterInfo>,
+    Json(body): Json<RegisterInfo>,
 ) -> impl IntoResponse {
     return match auth::register(&client, body).await {
         Ok(()) => (
             StatusCode::OK,
             "{\"result\": \"Successfully Registered\"}".to_string()
         ).into_response(),
-        Err(auth::RegistrationError::UsernameError) => (
+        Err(RegistrationError::UsernameError) => (
             StatusCode::CONFLICT,
             "{\"error\":\"All tags taken up for the username.\"}".to_string()
         ).into_response(),
-        Err(auth::RegistrationError::RegistrationError) => (
+        Err(RegistrationError::RegistrationError) => (
             StatusCode::FORBIDDEN,
             "{\"error\":\"Failed to register.\"}".to_string()
         ).into_response()
@@ -31,7 +32,7 @@ pub async fn register_handler(
 
 pub async fn login_handler(
     State(client): State<Arc<Client>>,
-    Json(body): Json<auth::Credentials>,
+    Json(body): Json<Credentials>,
 ) -> impl IntoResponse {
     let auth_option = auth::log_in(&client, body).await;
     return match auth_option {
