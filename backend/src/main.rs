@@ -18,4 +18,4 @@ async fn main() {
         .unwrap();
 }
 
-mod test;
+pub mod test;
