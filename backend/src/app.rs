@@ -46,6 +46,7 @@ pub async fn create_app() -> Router {
         .route("/register/", post(handlers::auth::register_handler))
         .route("/login/", post(handlers::auth::login_handler))
         .route("/friends/", get(handlers::friend::get_friends_handler))
+        .route("/friends/{id}/", delete(handlers::friend::delete_friendship_handler))
         .route("/incoming-friend-requests/", get(handlers::friend::get_incoming_fr_handler))
         .route("/outgoing-friend-requests/", get(handlers::friend::get_outgoing_fr_handler))
         .route("/friend-request/", post(handlers::friend::send_fr_handler))

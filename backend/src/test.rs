@@ -615,7 +615,7 @@ mod friend_tests {
         };
         let bill_jwt = login(&server, &bill).await;
         let christina_jwt = login(&server, &christina).await;
-        // send FR to john
+        // send FR to christina
         let christina_tag = server.get("/userinfo/self/")
             .add_header("Authorization", format!("jwt {}", christina_jwt))
             .await
@@ -650,6 +650,71 @@ mod friend_tests {
         };
         let jwt = login(&server, &bill).await;
         server.delete("/friend-request/00000000-0000-0000-0000-000000000000/")
+            .add_header("Authorization", format!("jwt {}", jwt))
+            .await
+            .assert_status_not_found();
+    }
+
+    #[tokio::test]
+    async fn christina_deletes_imaginary_as_friend() {
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let christina: Credentials = Credentials {
+            email: "christina@example.com".to_string(),
+            password: "tsundere".to_string()
+        };
+        let imaginary: Credentials = Credentials {
+            email: "imaginary@example.com".to_string(),
+            password: "friend".to_string()
+        };
+        let christina_jwt = login(&server, &christina).await;
+        let imaginary_jwt = login(&server, &imaginary).await;
+        let imaginary_info = server.get("/userinfo/self/")
+            .add_header("Authorization", format!("jwt {}", imaginary_jwt))
+            .await
+            .json::<Member>();
+        let christina_id = server.get("/userinfo/self/")
+            .add_header("Authorization", format!("jwt {}", christina_jwt))
+            .await
+            .json::<Member>()
+            .id;
+        let friend_request = FriendRequest {
+            username: "imaginary".to_string(),
+            tag: imaginary_info.tag
+        };
+        server.post("/friend-request/")
+            .add_header("Authorization", format!("jwt {}", christina_jwt))
+            .json::<FriendRequest>(&friend_request)
+            .await
+            .assert_status_ok();
+        server.put(&format!("/friend-request/{}/", christina_id))
+            .add_header("Authorization", format!("jwt {}", imaginary_jwt))
+            .await
+            .assert_status_ok();
+        let friend_list1 = server.get("/friends/")
+            .add_header("Authorization", format!("jwt {}", christina_jwt))
+            .await
+            .json::<Vec<Friend>>();
+        assert_eq!(friend_list1[0].id, imaginary_info.id);
+        server.delete(&format!("/friends/{}/", christina_id))
+            .add_header("Authorization", format!("jwt {}", imaginary_jwt))
+            .await
+            .assert_status_ok();
+        let friend_list2 = server.get("/friends/")
+            .add_header("Authorization", format!("jwt {}", christina_jwt))
+            .await
+            .json::<Vec<Friend>>();
+        assert_eq!(friend_list2.len(), 0);
+    }
+
+    #[tokio::test]
+    async fn delete_a_nonexistent_friend() {
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let bill: Credentials = Credentials {
+            email: "bill@example.com".to_string(),
+            password: "scientist".to_string()
+        };
+        let jwt = login(&server, &bill).await;
+        server.delete("/friends/00000000-0000-0000-0000-000000000000/")
             .add_header("Authorization", format!("jwt {}", jwt))
             .await
             .assert_status_not_found();

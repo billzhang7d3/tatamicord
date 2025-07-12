@@ -8,9 +8,9 @@ use tokio_postgres::{Client, Row};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Friend {
-    id: String,
-    username: String,
-    tag: String
+    pub id: String,
+    pub username: String,
+    pub tag: String
 }
 // pfp support coming soon
 
@@ -181,5 +181,25 @@ RETURNING *;
     return match row {
         Ok(_) => Ok(()),
         Err(_err) => Err("nonexistent friend request".to_string())
+    }
+}
+
+pub async fn delete_friend(
+    client: &Arc<Client>,
+    id1: String,
+    id2: String
+) -> Result<(), String> {
+    let query = r#"
+DELETE FROM friendship
+WHERE (id1::TEXT = $1::TEXT AND id2::TEXT = $2::TEXT)
+OR (id1::TEXT = $2::TEXT AND id2::TEXT = $1::TEXT)
+RETURNING id1, id2;
+"#;
+    let row_result = client
+        .query_one(query, &[&id1, &id2])
+        .await;
+    return match row_result {
+        Ok(_) => Ok(()),
+        Err(_err) => Err("nonexistent friend".to_string())
     }
 }
