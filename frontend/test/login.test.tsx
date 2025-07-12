@@ -2,11 +2,9 @@ import { BrowserRouter } from "react-router-dom"
 import { render, screen, userEvent } from "."
 import LoginPage from "../src/components/Login"
 import { test, expect, describe, vi, beforeEach, beforeAll, afterAll } from "vitest"
-import dotenv from "dotenv"
 import { setupServer } from "msw/node"
 import { http, HttpResponse } from "msw"
 
-dotenv.config()
 const server = setupServer()
 
 test("Login page renders.", async () => {
@@ -63,7 +61,7 @@ describe("Button Routing Tests", () => {
 
   test("A valid login goes to homepage.", async () => {
     server.use(
-      http.post(process.env.API_URL! + '/login/', async () => {
+      http.post(import.meta.env.VITE_API_URL! + 'login/', async () => {
         return HttpResponse.json({
           "result": "fake-jwt-lol"
         })
@@ -85,7 +83,7 @@ describe("Button Routing Tests", () => {
 
   test("An invalid login does not go to homepage.", async () => {
     server.use(
-      http.post(process.env.API_URL! + '/login/', async () => {
+      http.post(import.meta.env.VITE_API_URL! + 'login/', async () => {
         return new HttpResponse(null, {status: 401})
       })
     )

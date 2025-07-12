@@ -2,12 +2,10 @@ import { BrowserRouter } from "react-router-dom";
 import { render, screen, userEvent } from "."
 import { afterAll, beforeAll, beforeEach, expect, test, vi } from "vitest";
 import RegisterPage from "../src/components/Register";
-import dotenv from "dotenv"
 import { setupServer } from "msw/node"
 import { http, HttpResponse } from "msw";
 import { describe } from "node:test";
 
-dotenv.config()
 const server = setupServer()
 
 beforeAll(() => {
@@ -30,7 +28,7 @@ test("Register page renders", async () => {
 
 test("Successfully register for an account", async () => {
   server.use(
-    http.post(process.env.API_URL! + '/register/', async () => {
+    http.post(import.meta.env.VITE_API_URL! + 'register/', async () => {
         return HttpResponse.json({
           "result": "Successfully Registered"
         })
@@ -57,7 +55,7 @@ test("Successfully register for an account", async () => {
 
 test("Register with used email", async () => {
   server.use(
-    http.post(process.env.API_URL! + '/register/', async () => {
+    http.post(import.meta.env.VITE_API_URL! + 'register/', async () => {
         return new HttpResponse(null, {status: 403})
     })
   )
@@ -82,7 +80,7 @@ test("Register with used email", async () => {
 
 test("Register with fully occupied username", async () => {
   server.use(
-    http.post(process.env.API_URL! + '/register/', async () => {
+    http.post(import.meta.env.VITE_API_URL! + 'register/', async () => {
         return new HttpResponse(null, {status: 409})
     })
   )

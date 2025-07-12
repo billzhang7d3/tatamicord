@@ -77,8 +77,7 @@ function RegisterPage() {
                 email.length === 0
               }
               onClick={() => {
-                const API_URL = "http://localhost:8080/register/"
-                fetch(API_URL, {
+                fetch(import.meta.env.VITE_API_URL!.concat("register/"), {
                   method: "POST",
                   headers: {
                     "Content-Type": "application/json"

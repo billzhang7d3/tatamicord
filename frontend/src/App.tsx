@@ -9,7 +9,7 @@ import HomePage from "./components/Home"
 
 export default function App() {
   return (
-    <MantineProvider theme={theme}>
+    <MantineProvider theme={theme} defaultColorScheme="dark">
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LandingPage />} />

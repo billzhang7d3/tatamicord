@@ -17,7 +17,7 @@ function HomePage() {
           <LogoButton />
         </Group>
       </AppShell.Header>
-      <AppShell.Main></AppShell.Main>
+      <AppShell.Main />
     </AppShell>
   )
 }
