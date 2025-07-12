@@ -14,16 +14,15 @@ Install the frontend:
 ```
 cd frontend
 npm install
-cd ..
 ```
 Create a `.env` file for the frontend:
 ```
+VITE_API_URL=
 ```
 Install the backend:
 ```
 cd backend
 cargo install
-cd ..
 ```
 Create a `.env` file for the frontend:
 ```
