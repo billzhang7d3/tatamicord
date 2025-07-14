@@ -45,3 +45,9 @@ pub enum FriendRequestError {
     FriendRequestExists,
     AlreadyFriends
 }
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Timeline {
+    pub id: String,
+    pub name: String
+}

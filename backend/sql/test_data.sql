@@ -92,3 +92,9 @@ INSERT INTO member (
         'pw_hash', crypt('friend', gen_salt('bf'))
     )
 );
+
+INSERT INTO timeline (
+    timeline_name
+) VALUES (
+    'ramen shop'
+);

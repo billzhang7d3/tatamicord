@@ -30,3 +30,18 @@ CREATE TABLE friend_request(
     receiver UUID REFERENCES member(id),
     PRIMARY KEY (sender, receiver)
 );
+
+DROP TABLE IF EXISTS timeline CASCADE;
+
+CREATE TABLE timeline(
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    timeline_name VARCHAR(32)
+);
+
+DROP TABLE IF EXISTS member_timeline CASCADE;
+
+CREATE TABLE member_timeline (
+    member_id UUID REFERENCES member(id),
+    timeline_id UUID REFERENCES timeline(id),
+    PRIMARY KEY (member_id, timeline_id)
+);
