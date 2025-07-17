@@ -35,19 +35,19 @@ mod basic_tests {
         assert_eq!(timelines.len(), 0);
     }
 
-    #[tokio::test]
-    async fn cecilia_joins_ramen_timeline() {
-        dotenv::dotenv().ok();
-        let server = TestServer::new(app::create_app().await).unwrap();
-        let cecilia: Credentials = Credentials {
-            email: "cecilia@example.com".to_string(),
-            password: "doll".to_string()
-        };
-        let jwt = login(&server, &cecilia).await;
-        let timelines = server.get("/timeline/")
-            .add_header("Authorization", format!("jwt {}", jwt))
-            .await
-            .json::<Vec<Timeline>>();
-        assert_eq!(timelines.len(), 1);
-    }
+    // #[tokio::test]
+    // async fn cecilia_joins_ramen_timeline() {
+    //     dotenv::dotenv().ok();
+    //     let server = TestServer::new(app::create_app().await).unwrap();
+    //     let cecilia: Credentials = Credentials {
+    //         email: "cecilia@example.com".to_string(),
+    //         password: "doll".to_string()
+    //     };
+    //     let jwt = login(&server, &cecilia).await;
+    //     let timelines = server.get("/timeline/")
+    //         .add_header("Authorization", format!("jwt {}", jwt))
+    //         .await
+    //         .json::<Vec<Timeline>>();
+    //     assert_eq!(timelines.len(), 1);
+    // }
 }

@@ -29,7 +29,7 @@ mod friend_tests {
     async fn get_friends_list_no_auth() {
         dotenv::dotenv().ok();
         let server = TestServer::new(app::create_app().await).unwrap();
-        server.get("/friends/")
+        server.get("/friend/")
             .await
             .assert_status_not_found();
     }
@@ -44,7 +44,7 @@ mod friend_tests {
             password: "scientist".to_string()
         };
         let jwt = login(&server, &bill).await;
-        server.get("/friends/")
+        server.get("/friend/")
             .add_header("Authorization", jwt)
             .await
             .assert_status_not_found();
@@ -60,7 +60,7 @@ mod friend_tests {
             password: "scientist".to_string()
         };
         let jwt = login(&server, &bill).await;
-        server.get("/friends/")
+        server.get("/friend/")
             .add_header("Authorization", format!("jwt {}", jwt))
             .await
             .assert_status_ok();
@@ -185,7 +185,7 @@ mod friend_tests {
             .await
             .assert_status_ok();
         // violet can see friendship
-        let response = server.get("/friends/")
+        let response = server.get("/friend/")
             .add_header("Authorization", format!("jwt {}", violet_jwt))
             .await
             .json::<Vec<Member>>();
@@ -440,16 +440,16 @@ mod friend_tests {
             .add_header("Authorization", format!("jwt {}", imaginary_jwt))
             .await
             .assert_status_ok();
-        let friend_list1 = server.get("/friends/")
+        let friend_list1 = server.get("/friend/")
             .add_header("Authorization", format!("jwt {}", christina_jwt))
             .await
             .json::<Vec<Member>>();
         assert_eq!(friend_list1[0].id, imaginary_info.id);
-        server.delete(&format!("/friends/{}/", christina_id))
+        server.delete(&format!("/friend/{}/", christina_id))
             .add_header("Authorization", format!("jwt {}", imaginary_jwt))
             .await
             .assert_status_ok();
-        let friend_list2 = server.get("/friends/")
+        let friend_list2 = server.get("/friend/")
             .add_header("Authorization", format!("jwt {}", christina_jwt))
             .await
             .json::<Vec<Member>>();
@@ -464,7 +464,7 @@ mod friend_tests {
             password: "scientist".to_string()
         };
         let jwt = login(&server, &bill).await;
-        server.delete("/friends/00000000-0000-0000-0000-000000000000/")
+        server.delete("/friend/00000000-0000-0000-0000-000000000000/")
             .add_header("Authorization", format!("jwt {}", jwt))
             .await
             .assert_status_not_found();
