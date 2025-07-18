@@ -14,8 +14,8 @@ export interface Timeline {
 function HomePage() {
   // const navigate = useNavigate();
   const [opened, {toggle}] = useDisclosure();
-  const [timelineIndex, setTimelineIndex] = useState(0);
-  const [timelineList, setTimelineList] = useState([{
+  const [timelineIndex, setTimelineIndex] = useState<number>(0);
+  const [timelineList, setTimelineList] = useState<Timeline[]>([{
     id: "00000000-0000-0000-0000-000000000000",
     name: "Home"
   }]);
@@ -34,7 +34,9 @@ function HomePage() {
         return response.json()
       })
       .then((result) => {
-        setTimelineList(timelineList.concat(result.result))
+        if (result.result.length > 0) {
+          setTimelineList(timelineList.concat(result.result))
+        }
       })
       .catch()
   }, [])
