@@ -22,9 +22,7 @@ beforeEach(() => {
 test("Homepage renders.", async () => {
   server.use(
     http.get(import.meta.env.VITE_API_URL! + 'timeline/', async () => {
-      return HttpResponse.json({
-        "result": []
-      })
+      return HttpResponse.json([])
     }),
     http.get(import.meta.env.VITE_API_URL! + 'friend/', async () => {
       return HttpResponse.json({
@@ -54,15 +52,13 @@ test("Homepage renders.", async () => {
 test("Switching timelines works.", async () => {
   server.use(
     http.get(import.meta.env.VITE_API_URL! + 'timeline/', async () => {
-      return HttpResponse.json({
-        "result": [{
-          id: "fake uuid 1",
-          name: "Galaxy"
-        }, {
-          id: "fake uuid 2",
-          name: "Mantine"
-        }]
-      })
+      return HttpResponse.json([{
+        id: "fake uuid 1",
+        name: "Galaxy"
+      }, {
+        id: "fake uuid 2",
+        name: "Mantine"
+      }])
     }),
     http.get(import.meta.env.VITE_API_URL! + 'friend/', async () => {
       return HttpResponse.json({

@@ -34,8 +34,8 @@ function HomePage() {
         return response.json()
       })
       .then((result) => {
-        if (result.result.length > 0) {
-          setTimelineList(timelineList.concat(result.result))
+        if (result.length > 0) {
+          setTimelineList(timelineList.concat(result))
         }
       })
       .catch()
