@@ -12,4 +12,5 @@ services:
       - ./sql/setup.sql:/docker-entrypoint-initdb.d/1.setup.sql
       - ./sql/tag_generation.sql:/docker-entrypoint-initdb.d/2.tag_generation.sql
       - ./sql/friend_request_triggers.sql:/docker-entrypoint-initdb.d/3.friend_request_triggers.sql
-      - ./sql/test_data.sql:/docker-entrypoint-initdb.d/4.test_data.sql
+      - ./sql/timeline_triggers.sql:/docker-entrypoint-initdb.d/4.timeline_triggers.sql
+      - ./sql/test_data.sql:/docker-entrypoint-initdb.d/5.test_data.sql

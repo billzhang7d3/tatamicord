@@ -18,7 +18,7 @@ pub struct NewTag {
 
 pub async fn get_info(client: &Arc<Client>, id: String) -> Option<Member> {
     let query = r#"
-SELECT id::VARCHAR, username, tag
+SELECT id::TEXT, username, tag
 FROM member
 WHERE id::TEXT = $1::TEXT;
 "#;
