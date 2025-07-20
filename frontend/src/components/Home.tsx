@@ -1,10 +1,11 @@
-import { AppShell, Burger, Group } from "@mantine/core"
-import { useDisclosure } from "@mantine/hooks";
-import { useEffect, useState } from "react";
-import TimelineBar from "./TimelineBar";
-// import { useNavigate } from "react-router-dom";
-import { IconSettings } from '@tabler/icons-react';
-import MessageBox from "./MessageBox";
+import { AppShell, Burger, Button, Group, Menu } from "@mantine/core"
+import { useDisclosure } from "@mantine/hooks"
+import { useEffect, useState } from "react"
+import TimelineBar from "./TimelineBar"
+// import { useNavigate } from "react-router-dom"
+import { IconDotsVertical, IconSettings, IconUsers } from '@tabler/icons-react'
+import MessageBox from "./MessageBox"
+import { useNavigate } from "react-router-dom"
 
 export interface Timeline {
   id: string,
@@ -12,7 +13,7 @@ export interface Timeline {
 }
 
 function HomePage() {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const [opened, {toggle}] = useDisclosure();
   const [timelineIndex, setTimelineIndex] = useState<number>(0);
   const [timelineList, setTimelineList] = useState<Timeline[]>([{
@@ -54,7 +55,23 @@ function HomePage() {
             timelineIndex={timelineIndex}
             setTimelineIndex={setTimelineIndex}
           />
-          <IconSettings />
+          <Menu>
+            <Menu.Target>
+              <Button aria-label="more options" variant="transparent" size="xs">
+                <IconDotsVertical />
+              </Button>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item leftSection={<IconUsers />} onClick={() => {
+                navigate("/friends")
+              }}>
+                Friends
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+          <Button aria-label="settings" variant="transparent" size="xs">
+            <IconSettings />
+          </Button>
         </Group>
       </AppShell.Header>
       <AppShell.Main />

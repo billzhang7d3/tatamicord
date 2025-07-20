@@ -6,6 +6,7 @@ import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom"
 import LoginPage from "./components/Login"
 import RegisterPage from "./components/Register"
 import HomePage from "./components/Home"
+import FriendsPage from "./components/Friends"
 
 export default function App() {
   const isAuthenticated = localStorage.getItem("authToken") !== null;
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />
           <Route path="home" element={isAuthenticated ? <HomePage /> : <Navigate to="../login" />} />
+          <Route path="friends" element={isAuthenticated ? <FriendsPage /> : <Navigate to="../login" />} />
         </Routes>
       </BrowserRouter>
     </MantineProvider>

@@ -1,3 +1,5 @@
+/// <reference types="vite/types/importMeta.d.ts" />
+
 import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
 
