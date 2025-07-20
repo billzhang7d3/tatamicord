@@ -1,6 +1,7 @@
 use axum::{
     routing::{delete, get, post, put},
-    Router
+    Router,
+    http::Method
 };
 use http::header::{AUTHORIZATION, CONTENT_TYPE};
 use std::{
@@ -39,6 +40,7 @@ async fn create_client() -> Client {
 pub async fn create_app() -> Router {
     let cors = CorsLayer::new()
         .allow_headers([AUTHORIZATION, CONTENT_TYPE])
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
         .allow_origin(Any);
     let client_arc = Arc::new(create_client().await);
     let client_clone = Arc::clone(&client_arc);
