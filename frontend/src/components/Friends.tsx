@@ -1,4 +1,4 @@
-import { AppShell, Avatar, Box, Burger, Button, Group, Stack, Tabs, Text } from "@mantine/core"
+import { AppShell, Avatar, Box, Burger, Button, Group, Menu, Stack, Tabs, Text } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks";
 import { IconDotsVertical, IconSettings, IconUserPlus, IconUserX } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
@@ -9,7 +9,7 @@ export interface Member {
   tag: string
 }
 
-const [current, incoming, outgoing] =
+const [CURRENT, INCOMING, OUTGOING] =
     ["friend/", "incoming-friend-requests/", "outgoing-friend-requests/"]
 
 function FriendsPage() {
@@ -19,19 +19,19 @@ function FriendsPage() {
   const [outgoingRequestsList, setOutgoingRequestsList] = useState<Member[]>([])
   useEffect(() => {
     // fetch friends list
-    fetchFriends(current)
+    fetchFriends(CURRENT)
       .then(result => {
         setFriendsList(result)
       })
       .catch()
     // fetch incoming friends
-    fetchFriends(incoming)
+    fetchFriends(INCOMING)
       .then(result => {
         setIncomingRequestsList(result)
       })
       .catch()
     // fetch incoming friends
-    fetchFriends(outgoing)
+    fetchFriends(OUTGOING)
       .then(result => {
         setOutgoingRequestsList(result)
       })
@@ -72,13 +72,32 @@ function FriendsPage() {
                 <Group h="100%" px="md" key={friend.id}>
                   <Avatar name={friend.username} color="initials" />
                   <Text>{friend.username}</Text>
-                  <Button
-                    variant="transparent"
-                    aria-label={`more settings with friend ${friend.username}`}
-                    style={{marginLeft: "auto", marginRight: 0}}
-                  >
-                    <IconDotsVertical />
-                  </Button>
+                  <Menu shadow="md">
+                    <Menu.Target>
+                      <Button
+                        variant="transparent"
+                        aria-label={`more settings with friend ${friend.username}`}
+                        style={{marginLeft: "auto", marginRight: 0}}
+                      >
+                        <IconDotsVertical />
+                      </Button>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      <Menu.Item onClick={() => {
+                        fetch(import.meta.env.VITE_API_URL!.concat(`friend/${friend.id}/`), {
+                          method: "DELETE",
+                          headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `jwt ${localStorage.getItem("authToken")}`
+                          }
+                        })
+                      }}>
+                        <Text c="red">
+                          Remove Friend
+                        </Text>
+                      </Menu.Item>
+                    </Menu.Dropdown>
+                  </Menu>
                 </Group>
               )}
             </Stack>
@@ -93,12 +112,30 @@ function FriendsPage() {
                     <Button
                       variant="transparent"
                       aria-label={`accept friend request from ${member.username}`}
+                      onClick={() => {
+                        fetch(import.meta.env.VITE_API_URL!.concat(`friend-request/${member.id}/`), {
+                          method: "PUT",
+                          headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `jwt ${localStorage.getItem("authToken")}`
+                          }
+                        })
+                      }}
                     >
                       <IconUserPlus />
                     </Button>
                     <Button
                       variant="transparent"
                       aria-label={`reject friend request from ${member.username}`}
+                      onClick={() => {
+                        fetch(import.meta.env.VITE_API_URL!.concat(`friend-request/${member.id}/`), {
+                          method: "DELETE",
+                          headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `jwt ${localStorage.getItem("authToken")}`
+                          }
+                        })
+                      }}
                       style={{marginLeft: "auto", marginRight: 0}}
                     >
                       <IconUserX />
@@ -114,6 +151,15 @@ function FriendsPage() {
                     variant="transparent"
                     aria-label={`revoke friend request to ${member.username}`}
                     style={{marginLeft: "auto", marginRight: 0}}
+                    onClick={() => {
+                      fetch(import.meta.env.VITE_API_URL!.concat(`friend-request/${member.id}/`), {
+                        method: "DELETE",
+                        headers: {
+                          "Content-Type": "application/json",
+                          "Authorization": `jwt ${localStorage.getItem("authToken")}`
+                        }
+                      })
+                    }}
                   >
                     <IconUserX />
                   </Button>
