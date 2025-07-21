@@ -96,5 +96,4 @@ test("Other tab shows outgoing and incoming friend requests.", async () => {
   expect(username).toBeDefined()
   const username2 = await screen.findByText("thousand years rain")
   expect(username2).toBeDefined()
-
 })

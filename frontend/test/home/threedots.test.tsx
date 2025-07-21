@@ -50,22 +50,7 @@ describe("Friends Page Test", () => {
     server.use(
       http.get(import.meta.env.VITE_API_URL! + 'timeline/', async () => {
         return HttpResponse.json([])
-      }),
-      // http.get(import.meta.env.VITE_API_URL! + 'friend/', async () => {
-      //   return HttpResponse.json({
-      //     "result": []
-      //   })
-      // }),
-      // http.get(import.meta.env.VITE_API_URL! + 'outgoing-friend-requests/', async () => {
-      //   return HttpResponse.json({
-      //     "result": []
-      //   })
-      // }),
-      // http.get(import.meta.env.VITE_API_URL! + 'incoming-friend-requests/', async () => {
-      //   return HttpResponse.json({
-      //     "result": []
-      //   })
-      // }),
+      })
     )
     render(
       <BrowserRouter>
@@ -79,4 +64,21 @@ describe("Friends Page Test", () => {
     expect(buttonSpy).toHaveBeenCalledWith("/friends")
   })
 
+  test("Clicking logout navigates to login page.", async () => {
+    server.use(
+      http.get(import.meta.env.VITE_API_URL! + 'timeline/', async () => {
+        return HttpResponse.json([])
+      })
+    )
+    render(
+      <BrowserRouter>
+        <HomePage />
+      </BrowserRouter>
+    )
+    const threedots = await screen.findByLabelText("more options")
+    await userEvent.click(threedots)
+    const logout = await screen.findByText("Log Out")
+    await userEvent.click(logout)
+    expect(buttonSpy).toHaveBeenCalledWith("/login")
+  })
 })

@@ -117,7 +117,7 @@ describe("Friend Request Button Tests", () => {
     expect(resultId).toBe("fake-id-one")
   })
 
-  test("Fevoke friendship", async () => {
+  test("Revoke friendship", async () => {
     let resultId = ""
     server.use(
       http.get(import.meta.env.VITE_API_URL! + 'friend/', async () => {

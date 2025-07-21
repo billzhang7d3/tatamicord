@@ -1,7 +1,8 @@
-import { AppShell, Avatar, Box, Burger, Button, Group, Menu, Stack, Tabs, Text } from "@mantine/core"
+import { AppShell, Avatar, Box, Button, Group, Menu, Stack, Tabs, Text } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks";
-import { IconDotsVertical, IconSettings, IconUserPlus, IconUserX } from "@tabler/icons-react";
+import { IconArrowBackUp, IconDotsVertical, IconSettings, IconUserPlus, IconUserX } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export interface Member {
   id: string,
@@ -13,7 +14,8 @@ const [CURRENT, INCOMING, OUTGOING] =
     ["friend/", "incoming-friend-requests/", "outgoing-friend-requests/"]
 
 function FriendsPage() {
-  const [opened, {toggle}] = useDisclosure()
+  const navigate = useNavigate()
+  const [opened] = useDisclosure()
   const [friendsList, setFriendsList] = useState<Member[]>([])
   const [incomingRequestsList, setIncomingRequestsList] = useState<Member[]>([])
   const [outgoingRequestsList, setOutgoingRequestsList] = useState<Member[]>([])
@@ -45,7 +47,16 @@ function FriendsPage() {
     >
       <AppShell.Header>
         <Group h="100%" px="md">
-          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+          <Button
+            aria-label="Go back"
+            variant="transparent"
+            size="xs"
+            onClick={() => {
+              navigate(-1)
+            }}
+          >
+            <IconArrowBackUp />
+          </Button>
           <Button
             aria-label="settings"
             variant="transparent"

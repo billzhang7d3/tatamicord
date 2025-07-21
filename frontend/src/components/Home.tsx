@@ -3,7 +3,7 @@ import { useDisclosure } from "@mantine/hooks"
 import { useEffect, useState } from "react"
 import TimelineBar from "./TimelineBar"
 // import { useNavigate } from "react-router-dom"
-import { IconDotsVertical, IconSettings, IconUsers } from '@tabler/icons-react'
+import { IconDotsVertical, IconLogout, IconSettings, IconUsers } from '@tabler/icons-react'
 import MessageBox from "./MessageBox"
 import { useNavigate } from "react-router-dom"
 
@@ -66,6 +66,12 @@ function HomePage() {
                 navigate("/friends")
               }}>
                 Friends
+              </Menu.Item>
+              <Menu.Item leftSection={<IconLogout />} onClick={() => {
+                localStorage.removeItem("authToken")
+                navigate("/login")
+              }}>
+                Log Out
               </Menu.Item>
             </Menu.Dropdown>
           </Menu>
