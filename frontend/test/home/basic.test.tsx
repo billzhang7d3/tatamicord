@@ -24,21 +24,6 @@ test("Homepage renders.", async () => {
     http.get(import.meta.env.VITE_API_URL! + 'timeline/', async () => {
       return HttpResponse.json([])
     }),
-    http.get(import.meta.env.VITE_API_URL! + 'friend/', async () => {
-      return HttpResponse.json({
-        "result": []
-      })
-    }),
-    http.get(import.meta.env.VITE_API_URL! + 'outgoing-friend-requests/', async () => {
-      return HttpResponse.json({
-        "result": []
-      })
-    }),
-    http.get(import.meta.env.VITE_API_URL! + 'incoming-friend-requests/', async () => {
-      return HttpResponse.json({
-        "result": []
-      })
-    }),
   )
   render(
     <BrowserRouter>
@@ -59,21 +44,6 @@ test("Switching timelines works.", async () => {
         id: "fake uuid 2",
         name: "Mantine"
       }])
-    }),
-    http.get(import.meta.env.VITE_API_URL! + 'friend/', async () => {
-      return HttpResponse.json({
-        "result": []
-      })
-    }),
-    http.get(import.meta.env.VITE_API_URL! + 'outgoing-friend-requests/', async () => {
-      return HttpResponse.json({
-        "result": []
-      })
-    }),
-    http.get(import.meta.env.VITE_API_URL! + 'incoming-friend-requests/', async () => {
-      return HttpResponse.json({
-        "result": []
-      })
     }),
   )
   render(

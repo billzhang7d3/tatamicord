@@ -81,4 +81,5 @@ describe("Friends Page Test", () => {
     await userEvent.click(logout)
     expect(buttonSpy).toHaveBeenCalledWith("/login")
   })
+
 })

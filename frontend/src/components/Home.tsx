@@ -1,11 +1,12 @@
-import { AppShell, Burger, Button, Group, Menu } from "@mantine/core"
+import { AppShell, Burger, Button, Group } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import { useEffect, useState } from "react"
 import TimelineBar from "./TimelineBar"
 // import { useNavigate } from "react-router-dom"
-import { IconDotsVertical, IconLogout, IconSettings, IconUsers } from '@tabler/icons-react'
+import { IconSettings } from '@tabler/icons-react'
 import MessageBox from "./MessageBox"
-import { useNavigate } from "react-router-dom"
+import ToolbarMobile from "./ToolbarMobile"
+import FriendRequestMobile from "./FriendRequestMobile"
 
 export interface Timeline {
   id: string,
@@ -13,8 +14,8 @@ export interface Timeline {
 }
 
 function HomePage() {
-  const navigate = useNavigate();
   const [opened, {toggle}] = useDisclosure();
+  const [friendRequestPage, {open, close}] = useDisclosure()
   const [timelineIndex, setTimelineIndex] = useState<number>(0);
   const [timelineList, setTimelineList] = useState<Timeline[]>([{
     id: "00000000-0000-0000-0000-000000000000",
@@ -55,26 +56,8 @@ function HomePage() {
             timelineIndex={timelineIndex}
             setTimelineIndex={setTimelineIndex}
           />
-          <Menu>
-            <Menu.Target>
-              <Button aria-label="more options" variant="transparent" size="xs">
-                <IconDotsVertical />
-              </Button>
-            </Menu.Target>
-            <Menu.Dropdown>
-              <Menu.Item leftSection={<IconUsers />} onClick={() => {
-                navigate("/friends")
-              }}>
-                Friends
-              </Menu.Item>
-              <Menu.Item leftSection={<IconLogout />} onClick={() => {
-                localStorage.removeItem("authToken")
-                navigate("/login")
-              }}>
-                Log Out
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
+          <FriendRequestMobile opened={friendRequestPage} close={close} />
+          <ToolbarMobile open={open}/>
           <Button aria-label="settings" variant="transparent" size="xs">
             <IconSettings />
           </Button>
