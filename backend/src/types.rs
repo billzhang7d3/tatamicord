@@ -57,3 +57,26 @@ pub struct Timeline {
 pub struct TimelineInput {
     pub name: String
 }
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Channel {
+    pub id: String,
+    pub timeline: String
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Message {
+    pub id: String,
+    pub location: String,
+    pub sender: String,
+    pub content: String,
+    pub time_sent: String,
+    pub edited: bool
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct DirectMessage {
+    pub id: String,
+    pub sender: String,
+    pub receiver: String
+}

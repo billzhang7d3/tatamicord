@@ -59,6 +59,8 @@ pub async fn create_app() -> Router {
         .route("/tag/", put(handlers::member::change_tag_handler))
         .route("/timeline/", get(handlers::timeline::get_timelines_handler))
         .route("/timeline/", post(handlers::timeline::create_timeline_handler))
+        .route("/direct-message/", get(handlers::direct_message::get_dm_list_handler))
+        .route("/direct-message/{id}/", get(handlers::direct_message::get_dm_messages_handler))
         .with_state(client_clone)
         .layer(ServiceBuilder::new()
             .layer(cors));

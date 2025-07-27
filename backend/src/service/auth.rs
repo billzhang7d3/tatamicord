@@ -47,8 +47,8 @@ RETURNING *;"#;
         .await;
     return match rows_result {
         Ok(_) => Ok(()),
-        Err(_err) => {
-            if _err.to_string() == "db error: ERROR: all tags taken" {
+        Err(err) => {
+            if err.to_string() == "db error: ERROR: all tags taken" {
                 return Err(RegistrationError::UsernameError);
             }
             Err(RegistrationError::RegistrationError)

@@ -46,3 +46,32 @@ CREATE TABLE member_timeline (
     timeline_id UUID REFERENCES timeline(id),
     PRIMARY KEY (member_id, timeline_id)
 );
+
+DROP TABLE IF EXISTS message CASCADE;
+
+CREATE TABLE message (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    location UUID NOT NULL,  -- either references channel or DMs
+    sender UUID REFERENCES member(id),
+    content VARCHAR,
+    time_sent VARCHAR,
+    edited BOOLEAN
+);
+
+DROP TABLE IF EXISTS channel CASCADE;
+CREATE TABLE channel (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    channel_name VARCHAR,
+    timeline_id UUID REFERENCES timeline(id)
+);
+
+DROP TABLE IF EXISTS direct_message CASCADE;
+CREATE TABLE direct_message (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    member1 UUID NOT NULL REFERENCES member(id),
+    member2 UUID NOT NULL REFERENCES member(id),
+    recency_timestamp VARCHAR,
+    UNIQUE (member1, member2)
+);
+ALTER TABLE direct_message
+ADD CONSTRAINT check_members_not_equal CHECK (member1 <> member2);
