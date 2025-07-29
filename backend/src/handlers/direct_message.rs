@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
-use axum::{extract::{Path, State}, response::IntoResponse};
+use axum::{extract::{Path, State}, response::IntoResponse, Json};
 use http::{HeaderMap, StatusCode};
 use tokio_postgres::Client;
 
-use crate::service::{auth, direct_message};
+use crate::{service::{auth, direct_message}, types::{IdField, MessageInput}};
 
 pub async fn get_dm_list_handler(
     headers: HeaderMap,
@@ -48,4 +48,67 @@ pub async fn get_dm_messages_handler(
         StatusCode::OK,
         serde_json::to_string(&message_list).unwrap()
     ).into_response();
+}
+
+pub async fn initiate_dm_handler(
+    headers: HeaderMap,
+    State(client): State<Arc<Client>>,
+    Json(body): Json<IdField>
+) -> impl IntoResponse {
+    // auth
+    let auth_result = auth::authenticated(&headers).await;
+    if auth_result.is_err() {
+        return (
+            StatusCode::NOT_FOUND,
+            "{\"error\":\"Not Found.\"}"
+        ).into_response();
+    }
+    // send dm
+    let sender = auth_result.unwrap().id;
+    let receiver = body.id;
+    let dm_init_result = direct_message::initiate_dm(&client, sender, receiver).await;
+    return match dm_init_result {
+        Ok(id) =>
+            (StatusCode::OK, format!("{{\"result\":\"{}\"}}", id)).into_response(),
+        Err(err) => {
+            let status_code = if err.to_string() == "query returned an unexpected number of rows"
+                { StatusCode::CONFLICT } else { StatusCode::NOT_FOUND };
+            return (
+                status_code,
+                format!("{{\"error\":\"{}\"}}", err.to_string())
+            ).into_response()
+        }
+    }
+}
+
+pub async fn send_dm_handler(
+    Path(id): Path<String>,
+    headers: HeaderMap,
+    State(client): State<Arc<Client>>,
+    Json(body): Json<MessageInput>
+) -> impl IntoResponse {
+    // auth
+    let auth_result = auth::authenticated(&headers).await;
+    if auth_result.is_err() {
+        return (
+            StatusCode::NOT_FOUND,
+            "{\"error\":\"Not Found.\"}"
+        ).into_response();
+    }
+    // send dm
+    let sender = auth_result.unwrap().id;
+    let receiver = id;
+    let message_result =
+        direct_message::send_dm(&client, sender, receiver, body.content)
+        .await;
+    return match message_result {
+        Ok(message) => (
+            StatusCode::OK,
+            serde_json::to_string(&message).unwrap()
+        ).into_response(),
+        Err(_err) => (
+            StatusCode::NOT_FOUND,
+            "{\"error\":\"Message could not be sent.\"}"
+        ).into_response()
+    };
 }

@@ -55,7 +55,7 @@ CREATE TABLE message (
     sender UUID REFERENCES member(id),
     content VARCHAR,
     time_sent VARCHAR,
-    edited BOOLEAN
+    edited BOOLEAN DEFAULT false
 );
 
 DROP TABLE IF EXISTS channel CASCADE;
@@ -70,7 +70,7 @@ CREATE TABLE direct_message (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     member1 UUID NOT NULL REFERENCES member(id),
     member2 UUID NOT NULL REFERENCES member(id),
-    recency_timestamp VARCHAR,
+    recency_timestamp VARCHAR DEFAULT NOW()::TEXT,
     UNIQUE (member1, member2)
 );
 ALTER TABLE direct_message

@@ -75,8 +75,18 @@ pub struct Message {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
+pub struct MessageInput {
+    pub content: String
+}
+
+#[derive(Serialize, Deserialize, Clone)]
 pub struct DirectMessage {
     pub id: String,
     pub sender: String,
     pub receiver: String
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct IdField {
+    pub id: String
 }

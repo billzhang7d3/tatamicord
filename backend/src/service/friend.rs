@@ -37,7 +37,7 @@ WHERE id IN (
 
 pub async fn get_outgoing_friend_requests(client: &Arc<Client>, id: String) -> Vec<Member> {
     let query = r#"
-SELECT m.id::VARCHAR, m.username, m.tag
+SELECT m.id::TEXT, m.username, m.tag
 FROM member m
 INNER JOIN friend_request fr
 ON m.id = fr.receiver
@@ -61,7 +61,7 @@ WHERE fr.sender::TEXT = $1::TEXT;
 
 pub async fn get_incoming_friend_requests(client: &Arc<Client>, id: String) -> Vec<Member> {
     let query = r#"
-SELECT m.id::VARCHAR, m.username, m.tag
+SELECT m.id::TEXT, m.username, m.tag
 FROM member m
 INNER JOIN friend_request fr
 ON m.id = fr.sender

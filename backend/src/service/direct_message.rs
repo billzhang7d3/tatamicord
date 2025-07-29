@@ -9,7 +9,10 @@ pub async fn get_dm_list(
     id: String
 ) -> Vec<DirectMessage> {
     let query = r#"
-SELECT *
+SELECT
+    id::TEXT,
+    member1::TEXT,
+    member2::TEXT
 FROM direct_message
 WHERE $1::TEXT = member1::TEXT
 OR $1::TEXT = member2::TEXT
@@ -39,9 +42,9 @@ pub async fn get_dm_messages(
 ) -> Vec<Message> {
     let query = r#"
 SELECT
-    m.id AS id,
-    m.location AS location,
-    m.sender AS sender,
+    m.id::TEXT AS id,
+    m.location::TEXT AS location,
+    m.sender::TEXT AS sender,
     m.content AS content,
     m.time_sent AS time_sent,
     m.edited AS edited
@@ -67,4 +70,63 @@ ORDER BY time_sent"#;
         })
         .collect();
 
+}
+
+pub async fn initiate_dm(
+    client: &Arc<Client>,
+    sender: String,
+    receiver: String
+) -> Result<String, String> {
+    let query = r#"
+INSERT INTO direct_message (member1, member2)
+SELECT CAST($1::TEXT AS UUID), CAST($2::TEXT AS UUID)
+WHERE NOT EXISTS (
+    SELECT id
+    FROM direct_message
+    WHERE (member1 = CAST($1::TEXT AS UUID) AND member2 = CAST($2::TEXT AS UUID))
+    OR (member1 = CAST($2::TEXT AS UUID) AND member2 = CAST($1::TEXT AS UUID))
+) RETURNING id::VARCHAR;"#;
+    let row_result = client
+        .query_one(query, &[&sender, &receiver])
+        .await;
+    return match row_result {
+        Ok(row) => Ok(row.get::<&str, String>("id")),
+        Err(err) => {
+            if err.to_string() == "query returned an unexpected number of rows" {
+                return Err(err.to_string());
+            }
+            Err("direct message is already initiated".to_string())
+        }
+    };
+}
+
+pub async fn send_dm(
+    client: &Arc<Client>,
+    sender: String,
+    receiver: String,
+    message: String
+) -> Result<Message, String> {
+    let query = r#"
+SELECT
+    id::TEXT,
+    location::TEXT,
+    sender::TEXT,
+    content,
+    time_sent,
+    edited
+FROM send_direct_message(CAST($1::TEXT AS UUID), CAST($2::TEXT AS UUID), $3::TEXT);"#;
+    let row_result = client
+        .query_one(query, &[&sender, &receiver, &message])
+        .await;
+    return match row_result {
+        Ok(row) => Ok(Message {
+            id: row.get::<&str, String>("id"),
+            location: row.get::<&str, String>("location"),
+            sender: row.get::<&str, String>("sender"),
+            content: row.get::<&str, String>("content"),
+            time_sent: row.get::<&str, String>("time_sent"),
+            edited: row.get::<&str, bool>("edited")
+        }),
+        Err(err) => Err(err.to_string())
+    };
 }
