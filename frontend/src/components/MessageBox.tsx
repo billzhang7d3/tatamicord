@@ -1,6 +1,6 @@
-import { Group, Textarea } from "@mantine/core";
-import { useState } from "react";
-import { IconCirclePlus, IconSend2 } from '@tabler/icons-react';
+import { Group, Textarea } from "@mantine/core"
+import { useState } from "react"
+import { IconCirclePlus, IconSend2 } from '@tabler/icons-react'
 
 function MessageBox() {
   const [message, setMessage] = useState("");

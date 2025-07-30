@@ -3,7 +3,7 @@ import { render, screen, userEvent } from ".."
 import { beforeAll, afterAll, beforeEach, test, expect, describe, vi } from "vitest"
 import { setupServer } from "msw/node"
 import { http, HttpResponse } from "msw"
-import HomePage from "../../src/components/Home"
+import HomePage from "../../src/routes/Home"
 
 const server = setupServer()
 

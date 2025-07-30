@@ -12,7 +12,7 @@ import {
   UnstyledButton
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom"
-import LogoButton from "./LogoButton"
+import LogoButton from "../components/LogoButton"
 import { useForm } from "@mantine/form"
 
 // TODO: make login button show further down

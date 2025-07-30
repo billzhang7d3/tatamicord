@@ -1,6 +1,6 @@
-import { Box, Button, Modal, Text } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-import { Timeline } from "./Home";
+import { Box, Button, Modal, Text } from "@mantine/core"
+import { useDisclosure } from "@mantine/hooks"
+import { Timeline } from "../types"
 
 interface Props {
   timelineList: Timeline[],

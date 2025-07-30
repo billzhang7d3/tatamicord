@@ -1,5 +1,5 @@
-import { Text, UnstyledButton } from "@mantine/core";
-import { useNavigate } from "react-router-dom";
+import { Text, UnstyledButton } from "@mantine/core"
+import { useNavigate } from "react-router-dom"
 
 function LogoButton() {
   const navigate = useNavigate()

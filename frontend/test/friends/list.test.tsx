@@ -3,7 +3,7 @@ import { render, screen, userEvent } from ".."
 import { beforeAll, afterAll, beforeEach, test, expect } from "vitest"
 import { setupServer } from "msw/node"
 import { http, HttpResponse } from "msw"
-import FriendsPage from "../../src/components/Friends";
+import FriendsPage from "../../src/routes/Friends";
 
 const server = setupServer()
 

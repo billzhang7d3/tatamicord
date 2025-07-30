@@ -1,17 +1,13 @@
 import { AppShell, Burger, Button, Group } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import { useEffect, useState } from "react"
-import TimelineBar from "./TimelineBar"
+import TimelineBar from "../components/TimelineBar"
 // import { useNavigate } from "react-router-dom"
 import { IconSettings } from '@tabler/icons-react'
-import MessageBox from "./MessageBox"
-import ToolbarMobile from "./ToolbarMobile"
-import FriendRequestMobile from "./FriendRequestMobile"
-
-export interface Timeline {
-  id: string,
-  name: string
-}
+import MessageBox from "../components/MessageBox"
+import ToolbarMobile from "../components/ToolbarMobile"
+import FriendRequestMobile from "../components/FriendRequestMobile"
+import { Timeline } from "../types"
 
 function HomePage() {
   const [opened, {toggle}] = useDisclosure();

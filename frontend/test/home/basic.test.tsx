@@ -1,6 +1,6 @@
 import { BrowserRouter } from "react-router-dom";
 import { render, screen, userEvent } from ".."
-import HomePage from "../../src/components/Home";
+import HomePage from "../../src/routes/Home";
 import { test, expect, beforeAll, beforeEach, afterAll } from "vitest";
 import { setupServer } from "msw/node"
 import { http, HttpResponse } from "msw"

@@ -1,6 +1,7 @@
-import { Button, Center, Modal, TextInput, Text, Stack, Box } from "@mantine/core";
-import { useForm } from "@mantine/form";
-import { useState } from "react";
+import { Button, Center, Modal, TextInput, Text, Stack, Box } from "@mantine/core"
+import { useForm } from "@mantine/form"
+import { useState } from "react"
+import { FriendRequestInfo } from "../types"
 
 enum SubmitResponse {
   NotSubmitted = 1,
@@ -13,11 +14,6 @@ enum SubmitResponse {
 interface Props {
   opened: boolean
   close: () => void
-}
-
-interface FriendRequestInfo {
-  username: string
-  tag: string
 }
 
 const MAX_USERNAME_LENGTH = 32

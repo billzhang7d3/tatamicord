@@ -3,7 +3,7 @@ import { setupServer } from "msw/node"
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest"
 import { render, screen, userEvent } from ".."
 import { BrowserRouter } from "react-router-dom"
-import FriendsPage from "../../src/components/Friends"
+import FriendsPage from "../../src/routes/Friends"
 
 const server = setupServer()
 

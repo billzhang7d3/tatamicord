@@ -1,14 +1,9 @@
 import { AppShell, Avatar, Box, Button, Group, Menu, Stack, Tabs, Text } from "@mantine/core"
-import { useDisclosure } from "@mantine/hooks";
-import { IconArrowBackUp, IconDotsVertical, IconSettings, IconUserPlus, IconUserX } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-export interface Member {
-  id: string,
-  username: string,
-  tag: string
-}
+import { useDisclosure } from "@mantine/hooks"
+import { IconArrowBackUp, IconDotsVertical, IconSettings, IconUserPlus, IconUserX } from "@tabler/icons-react"
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { Member } from "../types"
 
 const [CURRENT, INCOMING, OUTGOING] =
     ["friend/", "incoming-friend-requests/", "outgoing-friend-requests/"]

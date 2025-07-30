@@ -1,7 +1,7 @@
 import { BrowserRouter } from "react-router-dom";
 import { render, screen, userEvent } from "."
 import { afterAll, beforeAll, beforeEach, expect, test, vi } from "vitest";
-import RegisterPage from "../src/components/Register";
+import RegisterPage from "../src/routes/Register";
 import { setupServer } from "msw/node"
 import { http, HttpResponse } from "msw";
 import { describe } from "node:test";

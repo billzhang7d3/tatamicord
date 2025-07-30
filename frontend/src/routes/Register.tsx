@@ -13,7 +13,7 @@ import {
   UnstyledButton
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import LogoButton from "./LogoButton";
+import LogoButton from "../components/LogoButton";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 

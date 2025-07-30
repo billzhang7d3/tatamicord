@@ -1,12 +1,12 @@
 import "@mantine/core/styles.css"
 import { MantineProvider } from "@mantine/core"
 import { theme } from "./theme"
-import LandingPage from "./components/Landing"
+import LandingPage from "./routes/Landing"
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom"
-import LoginPage from "./components/Login"
-import RegisterPage from "./components/Register"
-import HomePage from "./components/Home"
-import FriendsPage from "./components/Friends"
+import LoginPage from "./routes/Login"
+import RegisterPage from "./routes/Register"
+import HomePage from "./routes/Home"
+import FriendsPage from "./routes/Friends"
 
 export default function App() {
   const isAuthenticated = localStorage.getItem("authToken") !== null;

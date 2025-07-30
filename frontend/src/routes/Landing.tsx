@@ -7,7 +7,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
-import LogoButton from "./LogoButton";
+import LogoButton from "../components/LogoButton";
 
 function LandingPage() {
   const navigate = useNavigate();
