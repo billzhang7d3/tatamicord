@@ -33,7 +33,10 @@ describe("Friends Page Test", () => {
     server.use(
       http.get(import.meta.env.VITE_API_URL! + 'timeline/', async () => {
         return HttpResponse.json([])
-      })
+      }),
+      http.get(import.meta.env.VITE_API_URL! + 'direct-message/', async () => {
+        return HttpResponse.json([])
+      }),
     )
     render(
       <BrowserRouter>
@@ -50,7 +53,10 @@ describe("Friends Page Test", () => {
     server.use(
       http.get(import.meta.env.VITE_API_URL! + 'timeline/', async () => {
         return HttpResponse.json([])
-      })
+      }),
+      http.get(import.meta.env.VITE_API_URL! + 'direct-message/', async () => {
+        return HttpResponse.json([])
+      }),
     )
     render(
       <BrowserRouter>
@@ -68,7 +74,10 @@ describe("Friends Page Test", () => {
     server.use(
       http.get(import.meta.env.VITE_API_URL! + 'timeline/', async () => {
         return HttpResponse.json([])
-      })
+      }),
+      http.get(import.meta.env.VITE_API_URL! + 'direct-message/', async () => {
+        return HttpResponse.json([])
+      }),
     )
     render(
       <BrowserRouter>

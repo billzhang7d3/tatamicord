@@ -28,7 +28,10 @@ test("Send a valid friend request.", async () => {
       return HttpResponse.json({
         result: "friend request sent"
       })
-    })
+    }),
+    http.get(import.meta.env.VITE_API_URL! + 'direct-message/', async () => {
+      return HttpResponse.json([])
+    }),
   )
   render(
     <BrowserRouter>
@@ -58,7 +61,10 @@ test("Send a friend request to someone already friends.", async () => {
     }),
     http.post(import.meta.env.VITE_API_URL! + 'friend-request/', async () => {
       return new HttpResponse(null, {status: 403})
-    })
+    }),
+    http.get(import.meta.env.VITE_API_URL! + 'direct-message/', async () => {
+      return HttpResponse.json([])
+    }),
   )
   render(
     <BrowserRouter>
@@ -88,7 +94,10 @@ test("Send a friend request when it already exists.", async () => {
     }),
     http.post(import.meta.env.VITE_API_URL! + 'friend-request/', async () => {
       return new HttpResponse(null, {status: 409})
-    })
+    }),
+    http.get(import.meta.env.VITE_API_URL! + 'direct-message/', async () => {
+      return HttpResponse.json([])
+    }),
   )
   render(
     <BrowserRouter>
@@ -118,7 +127,10 @@ test("Send a friend request to nonexistent friend.", async () => {
     }),
     http.post(import.meta.env.VITE_API_URL! + 'friend-request/', async () => {
       return new HttpResponse(null, {status: 404})
-    })
+    }),
+    http.get(import.meta.env.VITE_API_URL! + 'direct-message/', async () => {
+      return HttpResponse.json([])
+    }),
   )
   render(
     <BrowserRouter>
@@ -144,6 +156,9 @@ test("Send a friend request to nonexistent friend.", async () => {
 test("Enter in value not for submission", async () => {
   server.use(
     http.get(import.meta.env.VITE_API_URL! + 'timeline/', async () => {
+      return HttpResponse.json([])
+    }),
+    http.get(import.meta.env.VITE_API_URL! + 'direct-message/', async () => {
       return HttpResponse.json([])
     }),
   )

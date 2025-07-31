@@ -18,11 +18,11 @@ interface Props {
 
 const MAX_USERNAME_LENGTH = 32
 
-const correctUsernameLength = (value: String) => {
+const correctUsernameLength = (value: string) => {
   return value.length > 0 && value.length <= MAX_USERNAME_LENGTH
 }
 
-const isFourDigitNumber = (value: String) => {
+const isFourDigitNumber = (value: string) => {
   return value.length === 4 && !isNaN(Number(value))
 }
 

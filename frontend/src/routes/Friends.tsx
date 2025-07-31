@@ -33,7 +33,7 @@ function FriendsPage() {
         setOutgoingRequestsList(result)
       })
       .catch()
-  })
+  }, [])
   return (
     <AppShell
       header={{ height: 60 }}

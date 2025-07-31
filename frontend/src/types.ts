@@ -5,11 +5,17 @@ export interface Member {
 }
 
 export interface Timeline {
-  id: string,
-  name: string
+    id: string,
+    name: string
 }
 
 export interface FriendRequestInfo {
-  username: string
-  tag: string
+    username: string
+    tag: string
+}
+
+export interface DirectMessageInfo {
+    id: string,
+    sender: string,
+    receiver: Member
 }
