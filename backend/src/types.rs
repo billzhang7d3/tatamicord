@@ -83,7 +83,7 @@ pub struct MessageInput {
 pub struct DirectMessage {
     pub id: String,
     pub sender: String,
-    pub receiver: String
+    pub receiver: Member
 }
 
 #[derive(Serialize, Deserialize, Clone)]

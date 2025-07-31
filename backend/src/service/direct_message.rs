@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use tokio_postgres::{Client, Row};
 
-use crate::types::{DirectMessage, Message};
+use crate::types::{DirectMessage, Member, Message};
 
 pub async fn get_dm_list(
     client: &Arc<Client>,
@@ -10,13 +10,19 @@ pub async fn get_dm_list(
 ) -> Vec<DirectMessage> {
     let query = r#"
 SELECT
-    id::TEXT,
-    member1::TEXT,
-    member2::TEXT
-FROM direct_message
-WHERE $1::TEXT = member1::TEXT
-OR $1::TEXT = member2::TEXT
-ORDER BY recency_timestamp DESC;"#;
+    m1.id::TEXT AS m1_id,
+    m1.username AS m1_username,
+    m1.tag AS m1_tag,
+    dm.id::TEXT AS dm_id,
+    m2.id::TEXT AS m2_id,
+    m2.username AS m2_username,
+    m2.tag AS m2_tag
+FROM member m1, direct_message dm, member m2
+WHERE m1.id = dm.member1
+AND m2.id = dm.member2
+AND ($1::TEXT = dm.member1::TEXT
+OR $1::TEXT = dm.member2::TEXT)
+ORDER BY dm.recency_timestamp DESC;"#;
     let rows: Vec<Row> = client
         .query(query, &[&id])
         .await
@@ -24,13 +30,18 @@ ORDER BY recency_timestamp DESC;"#;
     return rows
         .into_iter()
         .map(|row| {
-            let member1 = row.get::<&str, String>("member1").to_owned();
-            let member2 = row.get::<&str, String>("member2").to_owned();
-            return DirectMessage {
-                id: row.get::<&str, String>("id").to_string(),
-                sender: if member1 == id {id.clone()} else {member2.clone()},
-                receiver: if member2 == id {id.clone()} else {member1}
+            let member1 = row.get::<&str, String>("m1_id").to_owned();
+            let decider = if member1 == id { 2 } else { 1 };
+            let receiver = Member {
+                id: row.get::<&str, String>(&format!("m{}_id", decider)).to_owned(),
+                username: row.get::<&str, String>(&format!("m{}_username", decider)).to_owned(),
+                tag: row.get::<&str, String>(&format!("m{}_tag", decider)).to_owned()
             };
+            return DirectMessage {
+                id: row.get::<&str, String>("dm_id").to_string(),
+                sender: row.get::<&str, String>(&format!("m{}_id", decider * 2 % 3)).to_string(),
+                receiver: receiver
+            }
         })
         .collect();
 }
