@@ -1,11 +1,22 @@
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, useNavigation } from "react-router-dom";
 import { render, screen, userEvent } from ".."
 import HomePage from "../../src/routes/Home";
-import { test, expect, beforeAll, beforeEach, afterAll } from "vitest";
+import { test, expect, beforeAll, beforeEach, afterAll, vi } from "vitest";
 import { setupServer } from "msw/node"
 import { http, HttpResponse } from "msw"
+import DirectMessagePage from "../../src/routes/DirectMessage";
 
 const server = setupServer()
+
+const buttonSpy = vi.fn()
+
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual("react-router-dom")
+  return {
+    ...actual,
+    useNavigate: () => buttonSpy
+  }
+})
 
 beforeAll(() => {
   server.listen()
@@ -19,7 +30,7 @@ beforeEach(() => {
   server.resetHandlers()
 })
 
-test("User can see friends.", async () => {
+test("User can navigate from Home to another DM page", async () => {
   server.use(
     http.get(import.meta.env.VITE_API_URL! + 'timeline/', async () => {
       return HttpResponse.json([])
@@ -44,5 +55,6 @@ test("User can see friends.", async () => {
   const burger = await screen.findByLabelText("menu")
   await userEvent.click(burger)
   const receiver = await screen.findByText("mock-receiver")
-  expect(receiver).toBeDefined()
+  await userEvent.click(receiver)
+  expect(buttonSpy).toHaveBeenCalledWith("/direct-message/fake-id2-lol")
 })

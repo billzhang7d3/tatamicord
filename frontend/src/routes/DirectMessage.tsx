@@ -1,27 +1,30 @@
-import { AppShell, Avatar, Burger, Button, Group, Stack, Text, UnstyledButton, NavLink, Flex } from "@mantine/core"
-import { useDisclosure } from "@mantine/hooks"
 import { useEffect, useState } from "react"
+import { DirectMessageInfo, Message, Timeline } from "../types"
+import { AppShell, Burger, Button, Group, Stack, NavLink, Avatar, Box, Text } from "@mantine/core"
+import { useDisclosure } from "@mantine/hooks"
+import { useNavigate, useParams } from "react-router-dom"
 import TimelineBar from "../components/TimelineBar"
-import { useNavigate } from "react-router-dom"
-import { IconSettings } from "@tabler/icons-react"
-import MessageBox from "../components/MessageBox"
-import ToolbarMobile from "../components/ToolbarMobile"
 import FriendRequestMobile from "../components/FriendRequestMobile"
-import { DirectMessageInfo, Timeline } from "../types"
+import ToolbarMobile from "../components/ToolbarMobile"
+import { IconSettings } from "@tabler/icons-react"
+import App from "../App"
+import MessageBox from "../components/MessageBox"
 
 const homeItself = [{
     id: "00000000-0000-0000-0000-000000000000",
     name: "Home"
 }]
 
-function HomePage() {
+function DirectMessagePage() {
   const navigate = useNavigate()
+  const { id } = useParams()
   const [opened, {toggle}] = useDisclosure();
   const [friendRequestPage, {open, close}] = useDisclosure()
-  const [timelineIndex, setTimelineIndex] = useState<number>(0)
-  const [timelineList, setTimelineList] = useState<Timeline[]>(homeItself);
-  // const [currentDmIndex, setCurrentDmIndex] = useState<number>(0)
+  const [currentDmIndex, setCurrentDmIndex] = useState<number>(0)
   const [dmList, setDmList] = useState<DirectMessageInfo[]>([])
+  const [timelineIndex, setTimelineIndex] = useState<number>(0)
+  const [timelineList, setTimelineList] = useState<Timeline[]>(homeItself)
+  const [messageList, setMessageList] = useState<Message[]>([])
   useEffect(() => {
     fetch(import.meta.env.VITE_API_URL!.concat("timeline/"), {
       method: "GET",
@@ -61,6 +64,24 @@ function HomePage() {
         }
       })
       .catch()
+    fetch(import.meta.env.VITE_API_URL!.concat(`direct-message/${id}/`), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `jwt ${localStorage.getItem("authToken")}`
+      }
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch direct messages")
+        }
+        return response.json()
+      })
+      .then((result) => {
+        if (result.length > 0) {
+          setMessageList(result)
+        }
+      })
   }, [])
   return (
     <AppShell
@@ -89,18 +110,8 @@ function HomePage() {
           </Button>
         </Group>
       </AppShell.Header>
-      <AppShell.Navbar p="md">
-        <Flex
-          gap="xs"
-          justify="center"
-          align="flex-start"
-          direction="column-reverse"
-          wrap="wrap"
-          style={{
-            height: "500px",
-            position: "fixed"
-          }}
-        >
+      <AppShell.Navbar>
+        <Stack justify="flex-start" align="flex-start">
           {dmList.map(dm =>
             <NavLink
               label={dm.receiver.username}
@@ -111,9 +122,20 @@ function HomePage() {
               }}
             />
           )}
-        </Flex>
+        </Stack>
       </AppShell.Navbar>
-      <AppShell.Main />
+      <AppShell.Main>
+        {messageList.map(message => 
+          <Group id={message.id}>
+            <Avatar radius="xl" />
+            <Box>
+              <Text>
+                {message.content}
+              </Text>
+            </Box>
+          </Group>
+        )}
+      </AppShell.Main>
       <AppShell.Footer>
         <MessageBox />
       </AppShell.Footer>
@@ -121,4 +143,4 @@ function HomePage() {
   )
 }
 
-export default HomePage
+export default DirectMessagePage

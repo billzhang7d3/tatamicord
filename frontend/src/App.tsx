@@ -7,6 +7,7 @@ import LoginPage from "./routes/Login"
 import RegisterPage from "./routes/Register"
 import HomePage from "./routes/Home"
 import FriendsPage from "./routes/Friends"
+import DirectMessagePage from "./routes/DirectMessage"
 
 export default function App() {
   const isAuthenticated = localStorage.getItem("authToken") !== null;
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="register" element={<RegisterPage />} />
           <Route path="home" element={isAuthenticated ? <HomePage /> : <Navigate to="../login" />} />
           <Route path="friends" element={isAuthenticated ? <FriendsPage /> : <Navigate to="../login" />} />
+          <Route path="direct-message/:id" element={isAuthenticated ? <DirectMessagePage /> : <Navigate to="../login" />} />
         </Routes>
       </BrowserRouter>
     </MantineProvider>

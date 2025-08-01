@@ -1,11 +1,11 @@
 export interface Member {
-    id: string,
-    username: string,
+    id: string
+    username: string
     tag: string
 }
 
 export interface Timeline {
-    id: string,
+    id: string
     name: string
 }
 
@@ -15,7 +15,16 @@ export interface FriendRequestInfo {
 }
 
 export interface DirectMessageInfo {
-    id: string,
-    sender: string,
+    id: string
+    sender: string
     receiver: Member
+}
+
+export interface Message {
+    id: string
+    location: string
+    sender: Member
+    content: string
+    time_sent: string
+    edited: boolean
 }
