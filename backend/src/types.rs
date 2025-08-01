@@ -68,7 +68,7 @@ pub struct Channel {
 pub struct Message {
     pub id: String,
     pub location: String,
-    pub sender: String,
+    pub sender: Member,
     pub content: String,
     pub time_sent: String,
     pub edited: bool

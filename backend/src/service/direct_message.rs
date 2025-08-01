@@ -53,18 +53,20 @@ pub async fn get_dm_messages(
 ) -> Vec<Message> {
     let query = r#"
 SELECT
-    m.id::TEXT AS id,
-    m.location::TEXT AS location,
-    m.sender::TEXT AS sender,
-    m.content AS content,
-    m.time_sent AS time_sent,
-    m.edited AS edited
-FROM message m
-INNER JOIN direct_message dm
-ON m.location = dm.id
-WHERE (dm.member1::TEXT = $1::TEXT AND dm.member2::TEXT = $2::TEXT) 
-OR (dm.member1::TEXT = $2::TEXT AND dm.member2::TEXT = $1::TEXT)
-ORDER BY time_sent"#;
+    msg.id::TEXT AS msg_id,
+    msg.location::TEXT AS location,
+    mb.id::TEXT AS member_id,
+    mb.username AS username,
+    mb.tag AS tag,
+    msg.content AS content,
+    msg.time_sent AS time_sent,
+    msg.edited AS edited
+FROM message msg, direct_message dm, member mb
+WHERE msg.location = dm.id
+AND mb.id = msg.sender
+AND ((dm.member1::TEXT = $1::TEXT AND dm.member2::TEXT = $2::TEXT)
+    OR (dm.member1::TEXT = $2::TEXT AND dm.member2::TEXT = $1::TEXT))
+ORDER BY time_sent;"#;
     let rows: Vec<Row> = client
         .query(query, &[&id1, &id2])
         .await
@@ -72,9 +74,13 @@ ORDER BY time_sent"#;
     return rows
         .into_iter()
         .map(|row| Message {
-            id: row.get::<&str, String>("id"),
+            id: row.get::<&str, String>("msg_id"),
             location: row.get::<&str, String>("location"),
-            sender: row.get::<&str, String>("sender"),
+            sender: Member {
+                id: row.get::<&str, String>("member_id"),
+                username: row.get::<&str, String>("username"),
+                tag: row.get::<&str, String>("tag")
+            },
             content: row.get::<&str, String>("content"),
             time_sent: row.get::<&str, String>("time_sent"),
             edited: row.get::<&str, bool>("edited")
@@ -119,21 +125,29 @@ pub async fn send_dm(
 ) -> Result<Message, String> {
     let query = r#"
 SELECT
-    id::TEXT,
-    location::TEXT,
-    sender::TEXT,
-    content,
-    time_sent,
-    edited
-FROM send_direct_message(CAST($1::TEXT AS UUID), CAST($2::TEXT AS UUID), $3::TEXT);"#;
+    msg.id::TEXT AS msg_id,
+    msg.location::TEXT AS location,
+    m.id::TEXT AS member_id,
+    m.username AS username,
+    m.tag AS tag,
+    msg.content AS content,
+    msg.time_sent AS time_sent,
+    msg.edited AS edited
+FROM send_direct_message(CAST($1::TEXT AS UUID), CAST($2::TEXT AS UUID), $3::TEXT) msg
+INNER JOIN member m
+ON m.id = msg.sender;"#;
     let row_result = client
         .query_one(query, &[&sender, &receiver, &message])
         .await;
     return match row_result {
         Ok(row) => Ok(Message {
-            id: row.get::<&str, String>("id"),
+            id: row.get::<&str, String>("msg_id"),
             location: row.get::<&str, String>("location"),
-            sender: row.get::<&str, String>("sender"),
+            sender: Member {
+                id: row.get::<&str, String>("member_id"),
+                username: row.get::<&str, String>("username"),
+                tag: row.get::<&str, String>("tag")
+            },
             content: row.get::<&str, String>("content"),
             time_sent: row.get::<&str, String>("time_sent"),
             edited: row.get::<&str, bool>("edited")
