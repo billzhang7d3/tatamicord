@@ -1,13 +1,15 @@
-import { AppShell, Avatar, Burger, Button, Group, Stack, Text, UnstyledButton, NavLink, Flex } from "@mantine/core"
+import { AppShell, Burger, Button, Group } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import { useEffect, useState } from "react"
 import TimelineBar from "../components/TimelineBar"
-import { useNavigate } from "react-router-dom"
 import { IconSettings } from "@tabler/icons-react"
 import MessageBox from "../components/MessageBox"
 import ToolbarMobile from "../components/ToolbarMobile"
 import FriendRequestMobile from "../components/FriendRequestMobile"
 import { DirectMessageInfo, Timeline } from "../types"
+import DirectMessageList from "../components/DirectMessageList"
+import fetchTimelines from "../api/fetchTimelines"
+import fetchDirectMessages from "../api/fetchDirectMessages"
 
 const homeItself = [{
     id: "00000000-0000-0000-0000-000000000000",
@@ -15,52 +17,20 @@ const homeItself = [{
 }]
 
 function HomePage() {
-  const navigate = useNavigate()
   const [opened, {toggle}] = useDisclosure();
   const [friendRequestPage, {open, close}] = useDisclosure()
   const [timelineIndex, setTimelineIndex] = useState<number>(0)
   const [timelineList, setTimelineList] = useState<Timeline[]>(homeItself);
-  // const [currentDmIndex, setCurrentDmIndex] = useState<number>(0)
   const [dmList, setDmList] = useState<DirectMessageInfo[]>([])
   useEffect(() => {
-    fetch(import.meta.env.VITE_API_URL!.concat("timeline/"), {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `jwt ${localStorage.getItem("authToken")}`
-      }
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch timelines")
-        }
-        return response.json()
-      })
+    fetchTimelines()
       .then((result) => {
-        if (result.length > 0) {
-          setTimelineList(homeItself.concat(result))
-        }
+        setTimelineList(homeItself.concat(result))
       })
-      .catch()
-    fetch(import.meta.env.VITE_API_URL!.concat("direct-message/"), {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `jwt ${localStorage.getItem("authToken")}`
-      }
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch direct messages")
-        }
-        return response.json()
-      })
+    fetchDirectMessages()
       .then((result) => {
-        if (result.length > 0) {
-          setDmList(result)
-        }
+        setDmList(result)
       })
-      .catch()
   }, [])
   return (
     <AppShell
@@ -90,28 +60,7 @@ function HomePage() {
         </Group>
       </AppShell.Header>
       <AppShell.Navbar p="md">
-        <Flex
-          gap="xs"
-          justify="center"
-          align="flex-start"
-          direction="column-reverse"
-          wrap="wrap"
-          style={{
-            height: "500px",
-            position: "fixed"
-          }}
-        >
-          {dmList.map(dm =>
-            <NavLink
-              label={dm.receiver.username}
-              key={dm.id}
-              leftSection={<Avatar radius="xl" />}
-              onClick={() => {
-                navigate(`/direct-message/${dm.receiver.id}`)
-              }}
-            />
-          )}
-        </Flex>
+        <DirectMessageList dmList={dmList} />
       </AppShell.Navbar>
       <AppShell.Main />
       <AppShell.Footer>

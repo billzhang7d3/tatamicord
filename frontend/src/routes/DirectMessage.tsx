@@ -1,86 +1,52 @@
 import { useEffect, useState } from "react"
 import { DirectMessageInfo, Message, Timeline } from "../types"
-import { AppShell, Burger, Button, Group, Stack, NavLink, Avatar, Box, Text } from "@mantine/core"
+import { AppShell, Burger, Button, Group, Avatar, Box, Text } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
-import { useNavigate, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import TimelineBar from "../components/TimelineBar"
 import FriendRequestMobile from "../components/FriendRequestMobile"
 import ToolbarMobile from "../components/ToolbarMobile"
 import { IconSettings } from "@tabler/icons-react"
-import App from "../App"
 import MessageBox from "../components/MessageBox"
+import DirectMessageList from "../components/DirectMessageList"
+import fetchTimelines from "../api/fetchTimelines"
+import fetchDirectMessages from "../api/fetchDirectMessages"
+import fetchDmMessages from "../api/fetchDmMessages"
 
 const homeItself = [{
     id: "00000000-0000-0000-0000-000000000000",
     name: "Home"
 }]
 
+const months = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+]
+
+function dateFormat(isoDate: string): string {
+  const date = new Date(isoDate)
+  return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`
+}
+
 function DirectMessagePage() {
-  const navigate = useNavigate()
   const { id } = useParams()
   const [opened, {toggle}] = useDisclosure();
   const [friendRequestPage, {open, close}] = useDisclosure()
-  const [currentDmIndex, setCurrentDmIndex] = useState<number>(0)
   const [dmList, setDmList] = useState<DirectMessageInfo[]>([])
   const [timelineIndex, setTimelineIndex] = useState<number>(0)
   const [timelineList, setTimelineList] = useState<Timeline[]>(homeItself)
   const [messageList, setMessageList] = useState<Message[]>([])
   useEffect(() => {
-    fetch(import.meta.env.VITE_API_URL!.concat("timeline/"), {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `jwt ${localStorage.getItem("authToken")}`
-      }
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch timelines")
-        }
-        return response.json()
-      })
+    fetchTimelines()
       .then((result) => {
-        if (result.length > 0) {
-          setTimelineList(homeItself.concat(result))
-        }
+        setTimelineList(homeItself.concat(result))
       })
-      .catch()
-    fetch(import.meta.env.VITE_API_URL!.concat("direct-message/"), {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `jwt ${localStorage.getItem("authToken")}`
-      }
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch direct messages")
-        }
-        return response.json()
-      })
+    fetchDirectMessages()
       .then((result) => {
-        if (result.length > 0) {
-          setDmList(result)
-        }
+        setDmList(result)
       })
-      .catch()
-    fetch(import.meta.env.VITE_API_URL!.concat(`direct-message/${id}/`), {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `jwt ${localStorage.getItem("authToken")}`
-      }
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch direct messages")
-        }
-        return response.json()
-      })
+    fetchDmMessages(id!)
       .then((result) => {
-        if (result.length > 0) {
-          setMessageList(result)
-        }
+        setMessageList(result)
       })
   }, [])
   return (
@@ -111,24 +77,16 @@ function DirectMessagePage() {
         </Group>
       </AppShell.Header>
       <AppShell.Navbar>
-        <Stack justify="flex-start" align="flex-start">
-          {dmList.map(dm =>
-            <NavLink
-              label={dm.receiver.username}
-              key={dm.id}
-              leftSection={<Avatar radius="xl" />}
-              onClick={() => {
-                navigate(`/direct-message/${dm.receiver.id}`)
-              }}
-            />
-          )}
-        </Stack>
+        <DirectMessageList dmList={dmList} />
       </AppShell.Navbar>
       <AppShell.Main>
         {messageList.map(message => 
-          <Group id={message.id}>
+          <Group key={message.id}>
             <Avatar radius="xl" />
             <Box>
+              <Text size="xs">
+                {dateFormat(message.time_sent)}
+              </Text>
               <Text>
                 {message.content}
               </Text>

@@ -76,7 +76,7 @@ test("User can see dm messages at start.", async () => {
     }),
     http.get(import.meta.env.VITE_API_URL! + 'direct-message/:id', async () => {
       return HttpResponse.json([{
-        id: "fake-id-lol",
+        id: "fake-id0-lol",
         location: "location-id-doesnt-matter-lol",
         sender: {
           id: "fake-id2-lol",
@@ -90,7 +90,7 @@ test("User can see dm messages at start.", async () => {
         id: "fake-id-lol",
         location: "location-id-doesnt-matter-lol",
         sender: {
-          id: "fake-id2-lol",
+          id: "fake-id3-lol",
           tag: "1234",
           username: "pepper"
         },
@@ -129,7 +129,7 @@ test("User can see friends page.", async () => {
     }),
     http.get(import.meta.env.VITE_API_URL! + 'direct-message/:id', async () => {
       return HttpResponse.json([{
-        id: "fake-id-lol",
+        id: "fake-id0-lol",
         location: "location-id-doesnt-matter-lol",
         sender: {
           id: "fake-id2-lol",
@@ -143,7 +143,7 @@ test("User can see friends page.", async () => {
         id: "fake-id-lol",
         location: "location-id-doesnt-matter-lol",
         sender: {
-          id: "fake-id2-lol",
+          id: "fake-id3-lol",
           tag: "1234",
           username: "pepper"
         },
