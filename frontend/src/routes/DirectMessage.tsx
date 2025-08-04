@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { DirectMessageInfo, Message, Timeline } from "../types"
-import { AppShell, Burger, Button, Group, Avatar, Box, Text } from "@mantine/core"
+import { AppShell, Burger, Button, Group, Avatar, Box, Text, Paper, Flex, ScrollArea } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import { useParams } from "react-router-dom"
 import TimelineBar from "../components/TimelineBar"
@@ -35,6 +35,9 @@ function DirectMessagePage() {
   const [timelineIndex, setTimelineIndex] = useState<number>(0)
   const [timelineList, setTimelineList] = useState<Timeline[]>(homeItself)
   const [messageList, setMessageList] = useState<Message[]>([])
+  const [recentMessageTimestamp, setRecentMessageTimestamp] = useState((new Date()).toISOString())
+  const [messagesHeight, setMessagesHeight] = useState(window.innerHeight)
+  const messagesRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     fetchTimelines()
       .then((result) => {
@@ -44,16 +47,25 @@ function DirectMessagePage() {
       .then((result) => {
         setDmList(result)
       })
+  }, [])
+  useEffect(() => {
     fetchDmMessages(id!)
       .then((result) => {
         setMessageList(result)
+        messagesRef.current?.scrollTo({ top: messagesRef.current?.scrollHeight });
       })
+  }, [recentMessageTimestamp])
+  useEffect(() => {
+    const handleResize = () => setMessagesHeight(window.innerHeight)
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
   }, [])
   return (
     <AppShell
       header={{ height: 60 }}
       navbar={{ width: 300, breakpoint: 'sm', collapsed: { mobile: !opened } }}
       padding="md"
+      layout="default"
     >
       <AppShell.Header>
         <Group h="100%" px="md">
@@ -80,23 +92,46 @@ function DirectMessagePage() {
         <DirectMessageList dmList={dmList} />
       </AppShell.Navbar>
       <AppShell.Main>
-        {messageList.map(message => 
-          <Group key={message.id}>
-            <Avatar radius="xl" />
-            <Box>
-              <Text size="xs">
-                {dateFormat(message.time_sent)}
-              </Text>
-              <Text>
-                {message.content}
-              </Text>
-            </Box>
-          </Group>
-        )}
+        <ScrollArea h={messagesHeight - 160} viewportRef={messagesRef} style={{ flex: 1 }}>
+          {messageList.map(message => 
+            <Flex
+              key={message.id}
+              gap="md"
+              wrap="nowrap"
+            >
+              <Box style={{verticalAlign: "top"}}>
+                <Avatar radius="xl" />
+              </Box>
+              <Box style={{ position: 'static' }}>
+                <Group gap="xs">
+                  <Text fw={700}>
+                    {message.sender.username}
+                  </Text>
+                  <Text size="xs">
+                    {dateFormat(message.time_sent)}
+                  </Text>
+                </Group>
+                <Box>
+                  <Text>
+                    {message.content}
+                  </Text>
+                </Box>
+              </Box>
+            </Flex>
+          )}
+        </ScrollArea>
+        <Box component="footer" mt="auto" style={{
+          position: "sticky",
+          bottom: "0px",
+          width: "100%",
+          height: "60px",
+          minWidth: 0
+        }}>
+          <Paper shadow="xs" radius="md" p="xs">
+            <MessageBox receiver={id!} timestampSetter={setRecentMessageTimestamp} />
+          </Paper>
+        </Box>
       </AppShell.Main>
-      <AppShell.Footer>
-        <MessageBox />
-      </AppShell.Footer>
     </AppShell>
   )
 }

@@ -3,7 +3,6 @@ import { useDisclosure } from "@mantine/hooks"
 import { useEffect, useState } from "react"
 import TimelineBar from "../components/TimelineBar"
 import { IconSettings } from "@tabler/icons-react"
-import MessageBox from "../components/MessageBox"
 import ToolbarMobile from "../components/ToolbarMobile"
 import FriendRequestMobile from "../components/FriendRequestMobile"
 import { DirectMessageInfo, Timeline } from "../types"
@@ -63,9 +62,7 @@ function HomePage() {
         <DirectMessageList dmList={dmList} />
       </AppShell.Navbar>
       <AppShell.Main />
-      <AppShell.Footer>
-        <MessageBox />
-      </AppShell.Footer>
+      <AppShell.Footer />
     </AppShell>
   )
 }

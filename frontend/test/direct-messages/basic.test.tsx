@@ -160,6 +160,6 @@ test("User can see friends page.", async () => {
   )
   const burger = await screen.findByLabelText("menu")
   await userEvent.click(burger)
-  const user = await screen.findByText("abbey")
+  const user = await screen.findByText("pepper")
   expect(user).toBeDefined()
 })
