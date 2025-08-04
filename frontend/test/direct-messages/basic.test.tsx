@@ -8,6 +8,11 @@ import DirectMessagePage from "../../src/routes/DirectMessage";
 
 const server = setupServer()
 
+Object.defineProperty(Element.prototype, "scrollTo", {
+  value: vi.fn(),
+  writable: true
+})
+
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom")
   return {
