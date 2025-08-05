@@ -43,18 +43,20 @@ function DirectMessagePage() {
       .then((result) => {
         setTimelineList(homeItself.concat(result))
       })
+  }, [])
+  useEffect(() => {
     fetchDirectMessages()
       .then((result) => {
         setDmList(result)
       })
-  }, [])
+  }, [recentMessageTimestamp])
   useEffect(() => {
     fetchDmMessages(id!)
       .then((result) => {
         setMessageList(result)
         messagesRef.current?.scrollTo({ top: messagesRef.current?.scrollHeight });
       })
-  }, [recentMessageTimestamp])
+  }, [id, recentMessageTimestamp])
   useEffect(() => {
     const handleResize = () => setMessagesHeight(window.innerHeight)
     window.addEventListener("resize", handleResize)

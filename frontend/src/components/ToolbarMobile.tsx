@@ -19,7 +19,9 @@ function ToolbarMobile({ open }: Props) {
         <Menu.Item leftSection={<IconUsers />} onClick={() => {
           navigate("/friends")
         }}>
-          Friends
+          <Text>
+            Friends
+          </Text>
         </Menu.Item>
         <Menu.Item leftSection={<IconUserPlus />} onClick={open}>
           <Text>
