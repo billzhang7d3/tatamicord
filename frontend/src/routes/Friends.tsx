@@ -88,6 +88,13 @@ function FriendsPage() {
                     </Menu.Target>
                     <Menu.Dropdown>
                       <Menu.Item onClick={() => {
+                        navigate(`/direct-message/${friend.id}`)
+                      }}>
+                        <Text>
+                          Message
+                        </Text>
+                      </Menu.Item>
+                      <Menu.Item onClick={() => {
                         fetch(import.meta.env.VITE_API_URL!.concat(`friend/${friend.id}/`), {
                           method: "DELETE",
                           headers: {
@@ -123,6 +130,14 @@ function FriendsPage() {
                             "Content-Type": "application/json",
                             "Authorization": `jwt ${localStorage.getItem("authToken")}`
                           }
+                        })
+                        fetch(import.meta.env.VITE_API_URL!.concat("direct-message/"), {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `jwt ${localStorage.getItem("authToken")}`
+                          },
+                          body: JSON.stringify({ id: member.id })
                         })
                       }}
                     >

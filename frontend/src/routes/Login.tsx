@@ -79,7 +79,11 @@ function LoginPage() {
                   {...loginForm.getInputProps("password")}
                 />
                 <Center>
-                  <Button type="submit" variant="light">Sign In</Button>
+                  <Button type="submit" variant="light" onClick={() => {
+                    navigate("/home")
+                  }}>
+                    Sign In
+                  </Button>
                 </Center>
               </Stack>
             </form>

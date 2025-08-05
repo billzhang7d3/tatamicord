@@ -21,6 +21,9 @@ describe("Friend Request Button Tests", () => {
   test("Accept a friend request", async () => {
     let resultId = "";
     server.use(
+      http.get(import.meta.env.VITE_API_URL! + 'direct-message/', async () => {
+        return HttpResponse.json({ result: "fake-id-lol" })
+      }),
       http.get(import.meta.env.VITE_API_URL! + 'friend/', async () => {
         return HttpResponse.json([])
       }),

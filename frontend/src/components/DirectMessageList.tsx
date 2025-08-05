@@ -4,9 +4,10 @@ import { useNavigate } from "react-router-dom"
 
 interface Props {
   dmList: DirectMessageInfo[]
+  toggle: () => void
 }
 
-function DirectMessageList({ dmList }: Props) {
+function DirectMessageList({ dmList, toggle }: Props) {
   const navigate = useNavigate()
   return (
     <Stack justify="flex-start" align="flex-start">
@@ -16,6 +17,7 @@ function DirectMessageList({ dmList }: Props) {
           key={dm.id}
           leftSection={<Avatar radius="xl" />}
           onClick={() => {
+            toggle()
             navigate(`/direct-message/${dm.receiver.id}`)
           }}
         />

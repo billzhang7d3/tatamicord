@@ -59,7 +59,7 @@ function HomePage() {
         </Group>
       </AppShell.Header>
       <AppShell.Navbar p="md">
-        <DirectMessageList dmList={dmList} />
+        <DirectMessageList dmList={dmList} toggle={toggle} />
       </AppShell.Navbar>
       <AppShell.Main />
       <AppShell.Footer />

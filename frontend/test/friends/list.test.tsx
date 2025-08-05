@@ -84,6 +84,9 @@ test("Other tab shows outgoing and incoming friend requests.", async () => {
         tag: "1000"
       }])
     }),
+    http.get(import.meta.env.VITE_API_URL! + 'direct-message/', async () => {
+      return HttpResponse.json([])
+    }),
   )
   render(
     <BrowserRouter>
