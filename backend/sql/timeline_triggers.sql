@@ -7,9 +7,15 @@ BEGIN
     INSERT INTO member_timeline (
         member_id,
         timeline_id
-    )
-    VALUES (
+    ) VALUES (
         NEW.timeline_owner,
+        NEW.id
+    );
+    INSERT INTO channel (
+        channel_name,
+        timeline_id
+    ) VALUES (
+        'general',
         NEW.id
     );
     RETURN NEW;

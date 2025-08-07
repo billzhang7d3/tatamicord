@@ -61,6 +61,7 @@ pub struct TimelineInput {
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Channel {
     pub id: String,
+    pub name: String,
     pub timeline: String
 }
 
