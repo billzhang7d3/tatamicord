@@ -36,7 +36,8 @@ DROP TABLE IF EXISTS timeline CASCADE;
 CREATE TABLE timeline(
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     timeline_name VARCHAR(32),
-    timeline_owner UUID REFERENCES member(id)
+    timeline_owner UUID REFERENCES member(id),
+    default_channel UUID
 );
 
 DROP TABLE IF EXISTS member_timeline CASCADE;
