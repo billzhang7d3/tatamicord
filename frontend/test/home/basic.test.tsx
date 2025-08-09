@@ -1,11 +1,21 @@
 import { BrowserRouter } from "react-router-dom";
 import { render, screen, userEvent } from ".."
 import HomePage from "../../src/routes/Home";
-import { test, expect, beforeAll, beforeEach, afterAll } from "vitest";
+import { test, expect, beforeAll, beforeEach, afterAll, vi } from "vitest";
 import { setupServer } from "msw/node"
 import { http, HttpResponse } from "msw"
 
 const server = setupServer()
+
+const buttonSpy = vi.fn()
+
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual("react-router-dom")
+  return {
+    ...actual,
+    useNavigate: () => buttonSpy
+  }
+})
 
 beforeAll(() => {
   server.listen()
@@ -41,15 +51,15 @@ test("Switching timelines works.", async () => {
   server.use(
     http.get(import.meta.env.VITE_API_URL! + 'timeline/', async () => {
       return HttpResponse.json([{
-        id: "fake uuid 1",
+        id: "fake-uuid-1",
         name: "Galaxy",
         owner: "me",
-        defaultChannel: "none"
+        default_channel: "none"
       }, {
-        id: "fake uuid 2",
+        id: "fake-uuid-2",
         name: "Mantine",
         owner: "me",
-        defaultChannel: "none"
+        default_channel: "none"
       }])
     }),
     http.get(import.meta.env.VITE_API_URL! + 'direct-message/', async () => {
@@ -66,5 +76,6 @@ test("Switching timelines works.", async () => {
   const galaxy = await screen.findByText("Galaxy")
   expect(galaxy).toBeDefined()
   await userEvent.click(galaxy)
+  expect(buttonSpy).toHaveBeenCalledWith("/timeline/fake-uuid-1/none")
 })
 

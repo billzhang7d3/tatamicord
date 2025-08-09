@@ -1,6 +1,7 @@
 import { Box, Button, Modal, Text } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import { Timeline } from "../types"
+import { useNavigate } from "react-router-dom"
 
 interface Props {
   timelineList: Timeline[],
@@ -9,6 +10,7 @@ interface Props {
 }
 
 function TimelineBar({ timelineList, timelineIndex, setTimelineIndex }: Props) {
+  const navigate = useNavigate()
   // console.log(timelineList);
   const [opened, {open, close}] = useDisclosure(false);
   return (
@@ -22,6 +24,7 @@ function TimelineBar({ timelineList, timelineIndex, setTimelineIndex }: Props) {
             radius="xs"
             key={timeline.id}
             onClick={() => {
+              navigate(`/timeline/${timeline.id}/${timeline.defaultChannel}`)
               setTimelineIndex(index)
               close()
             }}
