@@ -12,7 +12,9 @@ import fetchDirectMessages from "../api/fetchDirectMessages"
 
 const homeItself = [{
     id: "00000000-0000-0000-0000-000000000000",
-    name: "Home"
+    name: "Home",
+    owner: "",
+    defaultChannel: ""
 }]
 
 function HomePage() {

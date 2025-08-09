@@ -41,6 +41,9 @@ describe("Friend Request Button Tests", () => {
         resultId = params.id as string
         return HttpResponse.json([{ result: "friend request accepted" }])
       }),
+      http.post(import.meta.env.VITE_API_URL! + 'direct-message/', async () => {
+        return HttpResponse.json([])
+      }),
     )
     render(
       <BrowserRouter>

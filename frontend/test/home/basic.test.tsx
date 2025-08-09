@@ -42,10 +42,14 @@ test("Switching timelines works.", async () => {
     http.get(import.meta.env.VITE_API_URL! + 'timeline/', async () => {
       return HttpResponse.json([{
         id: "fake uuid 1",
-        name: "Galaxy"
+        name: "Galaxy",
+        owner: "me",
+        defaultChannel: "none"
       }, {
         id: "fake uuid 2",
-        name: "Mantine"
+        name: "Mantine",
+        owner: "me",
+        defaultChannel: "none"
       }])
     }),
     http.get(import.meta.env.VITE_API_URL! + 'direct-message/', async () => {

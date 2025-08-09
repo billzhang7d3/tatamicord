@@ -13,9 +13,11 @@ import fetchTimelines from "../api/fetchTimelines"
 import fetchDirectMessages from "../api/fetchDirectMessages"
 import fetchDmMessages from "../api/fetchDmMessages"
 
-const homeItself = [{
+const homeItself: Timeline[] = [{
     id: "00000000-0000-0000-0000-000000000000",
-    name: "Home"
+    name: "Home",
+    owner: "",
+    defaultChannel: ""
 }]
 
 const months = [

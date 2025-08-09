@@ -7,6 +7,8 @@ export interface Member {
 export interface Timeline {
     id: string
     name: string
+    owner: string
+    defaultChannel: string
 }
 
 export interface FriendRequestInfo {
