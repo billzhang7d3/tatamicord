@@ -9,9 +9,10 @@ use crate::types::Timeline;
 pub async fn get_timelines(client: &Arc<Client>, id: String) -> Vec<Timeline> {
     let query = r#"
 SELECT DISTINCT
-tl.id::VARCHAR AS id,
-tl.timeline_name AS name,
-tl.timeline_owner::TEXT AS owner
+    tl.id::TEXT AS id,
+    tl.timeline_name AS name,
+    tl.timeline_owner::TEXT AS owner,
+    tl.default_channel::TEXT as default_channel
 FROM timeline tl
 INNER JOIN member_timeline mt
 ON tl.id = mt.timeline_id
@@ -27,7 +28,8 @@ WHERE mt.member_id::TEXT = $1::TEXT;
             Timeline {
                 id: row.get::<&str, String>("id"),
                 name: row.get::<&str, String>("name"),
-                owner: row.get::<&str, String>("owner")
+                owner: row.get::<&str, String>("owner"),
+                default_channel: row.get::<&str, String>("default_channel")
             }
         })
         .collect();
@@ -46,7 +48,8 @@ VALUES (
 RETURNING
 id::TEXT,
 timeline_owner::TEXT AS owner,
-timeline_name AS name;
+timeline_name AS name,
+default_channel::TEXT;
 "#;
     let row_result = client
         .query_one(query, &[&id, &name])
@@ -55,7 +58,8 @@ timeline_name AS name;
         Ok(row) => Ok(Timeline {
             id: row.get::<&str, String>("id"),
             name: row.get::<&str, String>("name"),
-            owner: row.get::<&str, String>("owner")
+            owner: row.get::<&str, String>("owner"),
+            default_channel: row.get::<&str, String>("default_channel")
         }),
         Err(_) => Err("Failed to create timeline".to_string())
         // ^ line will be covered when I make a trigger for server limit

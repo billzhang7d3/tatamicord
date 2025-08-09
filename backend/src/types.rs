@@ -50,7 +50,8 @@ pub enum FriendRequestError {
 pub struct Timeline {
     pub id: String,
     pub name: String,
-    pub owner: String
+    pub owner: String,
+    pub default_channel: String
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -63,6 +64,11 @@ pub struct Channel {
     pub id: String,
     pub name: String,
     pub timeline: String
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct ChannelInput {
+    pub name: String
 }
 
 #[derive(Serialize, Deserialize, Clone)]

@@ -59,7 +59,7 @@ RETURNING *;"#;
 pub async fn log_in(client: &Arc<Client>, credentials: Credentials) -> Option<String> {
     // query the username and password, making sure user exists
     let query = r#"
-SELECT id::VARCHAR, username, tag
+SELECT id::TEXT, username, tag
 FROM member
 WHERE login_info->>'email' = $1::TEXT
 AND crypt($2::TEXT, login_info->>'pw_hash') = login_info->>'pw_hash';
