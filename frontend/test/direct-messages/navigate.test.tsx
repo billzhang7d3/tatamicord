@@ -4,7 +4,6 @@ import HomePage from "../../src/routes/Home";
 import { test, expect, beforeAll, beforeEach, afterAll, vi } from "vitest";
 import { setupServer } from "msw/node"
 import { http, HttpResponse } from "msw"
-import DirectMessagePage from "../../src/routes/DirectMessage";
 
 const server = setupServer()
 

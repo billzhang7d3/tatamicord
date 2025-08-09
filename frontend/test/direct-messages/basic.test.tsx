@@ -132,7 +132,7 @@ test("User can see friends page.", async () => {
         }
       }])
     }),
-    http.get(import.meta.env.VITE_API_URL! + 'direct-message/:id', async () => {
+    http.get(import.meta.env.VITE_API_URL! + 'direct-message/:id/', async () => {
       return HttpResponse.json([{
         id: "fake-id0-lol",
         location: "location-id-doesnt-matter-lol",

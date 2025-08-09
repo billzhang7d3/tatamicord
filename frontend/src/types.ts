@@ -7,6 +7,7 @@ export interface Member {
 export interface Timeline {
     id: string
     name: string
+    defaultChannel: string
 }
 
 export interface FriendRequestInfo {
@@ -27,4 +28,9 @@ export interface Message {
     content: string
     time_sent: string
     edited: boolean
+}
+
+export interface Channel {
+    id: string
+    name: string
 }

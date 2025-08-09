@@ -12,18 +12,19 @@ import fetchDirectMessages from "../api/fetchDirectMessages"
 
 const homeItself = [{
     id: "00000000-0000-0000-0000-000000000000",
-    name: "Home"
+    name: "Home",
+    defaultChannel: ""
 }]
 
 function HomePage() {
   const [opened, {toggle}] = useDisclosure();
   const [friendRequestPage, {open, close}] = useDisclosure()
-  const [timelineIndex, setTimelineIndex] = useState<number>(0)
-  const [timelineList, setTimelineList] = useState<Timeline[]>(homeItself);
+  const [timelineList, setTimelineList] = useState<Timeline[]>(homeItself)
   const [dmList, setDmList] = useState<DirectMessageInfo[]>([])
   useEffect(() => {
     fetchTimelines()
       .then((result) => {
+        console.log("result:", result)
         setTimelineList(homeItself.concat(result))
       })
     fetchDirectMessages()
@@ -46,11 +47,7 @@ function HomePage() {
             size="sm"
             aria-label="menu"
           />
-          <TimelineBar
-            timelineList={timelineList}
-            timelineIndex={timelineIndex}
-            setTimelineIndex={setTimelineIndex}
-          />
+          <TimelineBar timelineList={timelineList} timelineFocus={homeItself[0]} />
           <FriendRequestMobile opened={friendRequestPage} close={close} />
           <ToolbarMobile open={open}/>
           <Button aria-label="settings" variant="transparent" size="xs">

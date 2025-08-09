@@ -10,7 +10,7 @@ interface Props {
 function DirectMessageList({ dmList, toggle }: Props) {
   const navigate = useNavigate()
   return (
-    <Stack justify="flex-start" align="flex-start">
+    <Stack justify="flex-start" align="flex-start" gap="xs">
       {dmList.map(dm =>
         <NavLink
           label={dm.receiver.username}
