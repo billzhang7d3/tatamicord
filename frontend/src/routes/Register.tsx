@@ -16,6 +16,7 @@ import { useDisclosure } from "@mantine/hooks";
 import LogoButton from "../components/LogoButton";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import register from "../api/register";
 
 function RegisterPage() {
   const navigate = useNavigate();
@@ -77,23 +78,7 @@ function RegisterPage() {
                 email.length === 0
               }
               onClick={() => {
-                fetch(import.meta.env.VITE_API_URL!.concat("register/"), {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json"
-                  },
-                  body: JSON.stringify({
-                    username,
-                    email,
-                    "password": password1
-                  })
-                })
-                  .then((response) => {
-                    if (response.ok) {
-                      setRegistered(true)
-                    }
-                    return response.status
-                  })
+                register(username, email, password1)
                   .then((statusCode) => {
                     if (statusCode === 409) {
                       // username already taken
@@ -102,6 +87,10 @@ function RegisterPage() {
                     } else if (statusCode === 403) {
                       // email already in use
                       setValidEmail(false)
+                      setValidUser(true)
+                    } else if (statusCode === 200) {
+                      setRegistered(true)
+                      setValidEmail(true)
                       setValidUser(true)
                     }
                   })

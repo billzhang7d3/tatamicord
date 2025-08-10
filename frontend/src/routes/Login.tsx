@@ -14,6 +14,7 @@ import {
 import { useNavigate } from "react-router-dom"
 import LogoButton from "../components/LogoButton"
 import { useForm } from "@mantine/form"
+import login from "../api/login";
 
 // TODO: make login button show further down
 
@@ -41,19 +42,7 @@ function LoginPage() {
               <Title order={1}>Login</Title>
             </Center>
             <form onSubmit={loginForm.onSubmit((credentials) => {
-              fetch(import.meta.env.VITE_API_URL!.concat("login/"), {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json"
-                },
-                body: JSON.stringify(credentials)
-              })
-                .then((response) => {
-                  if (!response.ok) {
-                    throw new Error("Invalid Credentials");
-                  }
-                  return response.json()
-                })
+              login(credentials)
                 .then((result) => {
                   localStorage.setItem("authToken", result.result)
                   navigate("/home")
