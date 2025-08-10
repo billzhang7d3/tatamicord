@@ -31,10 +31,9 @@ function dateFormat(isoDate: string): string {
 
 function DirectMessagePage() {
   const { id } = useParams()
-  const [opened, {toggle}] = useDisclosure();
+  const [opened, {toggle}] = useDisclosure()
   const [friendRequestPage, {open, close}] = useDisclosure()
   const [dmList, setDmList] = useState<DirectMessageInfo[]>([])
-  const [timelineIndex, setTimelineIndex] = useState<number>(0)
   const [timelineList, setTimelineList] = useState<Timeline[]>(homeItself)
   const [messageList, setMessageList] = useState<Message[]>([])
   const [recentMessageTimestamp, setRecentMessageTimestamp] = useState((new Date()).toISOString())
@@ -82,9 +81,8 @@ function DirectMessagePage() {
           />
           <TimelineBar
             timelineList={timelineList}
-            timelineIndex={timelineIndex}
-            setTimelineIndex={setTimelineIndex}
-          />
+            currentTimeline={homeItself[0]}
+            />
           <FriendRequestMobile opened={friendRequestPage} close={close} />
           <ToolbarMobile open={open}/>
           <Button aria-label="settings" variant="transparent" size="xs">

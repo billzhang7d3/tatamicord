@@ -8,6 +8,7 @@ import RegisterPage from "./routes/Register"
 import HomePage from "./routes/Home"
 import FriendsPage from "./routes/Friends"
 import DirectMessagePage from "./routes/DirectMessage"
+import TimelinePage from "./routes/Timeline"
 
 export default function App() {
   const isAuthenticated = localStorage.getItem("authToken") !== null;
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="home" element={isAuthenticated ? <HomePage /> : <Navigate to="../login" />} />
           <Route path="friends" element={isAuthenticated ? <FriendsPage /> : <Navigate to="../login" />} />
           <Route path="direct-message/:id" element={isAuthenticated ? <DirectMessagePage /> : <Navigate to="../login" />} />
+          <Route path="timeline/:timelineId/:channelId" element={isAuthenticated ? <TimelinePage /> : <Navigate to="../login" />} />
         </Routes>
       </BrowserRouter>
     </MantineProvider>

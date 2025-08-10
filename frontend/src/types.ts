@@ -30,3 +30,8 @@ export interface Message {
     time_sent: string
     edited: boolean
 }
+
+export interface Channel {
+    id: string
+    name: string
+}

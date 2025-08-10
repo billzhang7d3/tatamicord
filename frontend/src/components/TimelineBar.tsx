@@ -4,14 +4,12 @@ import { Timeline } from "../types"
 import { useNavigate } from "react-router-dom"
 
 interface Props {
-  timelineList: Timeline[],
-  timelineIndex: number
-  setTimelineIndex: (_: number) => void
+  timelineList: Timeline[]
+  currentTimeline: Timeline | undefined
 }
 
-function TimelineBar({ timelineList, timelineIndex, setTimelineIndex }: Props) {
+function TimelineBar({ timelineList, currentTimeline }: Props) {
   const navigate = useNavigate()
-  // console.log(timelineList);
   const [opened, {open, close}] = useDisclosure(false);
   return (
     <Box style={{flex: 1, maxWidth: "500px", margin: "auto"}}>
@@ -24,8 +22,11 @@ function TimelineBar({ timelineList, timelineIndex, setTimelineIndex }: Props) {
             radius="xs"
             key={timeline.id}
             onClick={() => {
-              navigate(`/timeline/${timeline.id}/${timeline.defaultChannel}`)
-              setTimelineIndex(index)
+              if (index === 0) {
+                navigate("/home")
+              } else {
+                navigate(`/timeline/${timeline.id}/${timeline.defaultChannel}`)
+              }
               close()
             }}
           >
@@ -36,7 +37,7 @@ function TimelineBar({ timelineList, timelineIndex, setTimelineIndex }: Props) {
         )}
       </Modal>
       <Button variant="light" onClick={open} style={{width: "100%"}}>
-        {timelineList[timelineIndex].name}
+        {currentTimeline?.name}
       </Button>
     </Box>
   )

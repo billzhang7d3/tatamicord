@@ -20,7 +20,6 @@ const homeItself = [{
 function HomePage() {
   const [opened, {toggle}] = useDisclosure();
   const [friendRequestPage, {open, close}] = useDisclosure()
-  const [timelineIndex, setTimelineIndex] = useState<number>(0)
   const [timelineList, setTimelineList] = useState<Timeline[]>(homeItself);
   const [dmList, setDmList] = useState<DirectMessageInfo[]>([])
   useEffect(() => {
@@ -50,9 +49,8 @@ function HomePage() {
           />
           <TimelineBar
             timelineList={timelineList}
-            timelineIndex={timelineIndex}
-            setTimelineIndex={setTimelineIndex}
-          />
+            currentTimeline={homeItself[0]}
+            />
           <FriendRequestMobile opened={friendRequestPage} close={close} />
           <ToolbarMobile open={open}/>
           <Button aria-label="settings" variant="transparent" size="xs">

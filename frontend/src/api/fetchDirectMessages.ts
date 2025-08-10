@@ -9,7 +9,7 @@ async function fetchDirectMessages(): Promise<DirectMessageInfo[]> {
         }
     })
     if (!response.ok) {
-        throw new Error("Failed to fetch direct messages")
+        throw new Error("Failed to fetch direct message list")
     }
     return response.json()
 }

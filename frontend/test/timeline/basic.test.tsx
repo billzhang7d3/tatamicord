@@ -1,6 +1,6 @@
-import { BrowserRouter, useNavigation } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import { render, screen, userEvent } from ".."
-import HomePage from "../../src/routes/Home";
+import TimelinePage from "../../src/routes/Timeline"
 import { test, expect, beforeAll, beforeEach, afterAll, vi } from "vitest";
 import { setupServer } from "msw/node"
 import { http, HttpResponse } from "msw"
@@ -29,31 +29,31 @@ beforeEach(() => {
   server.resetHandlers()
 })
 
-test("User can navigate from Home to another DM page", async () => {
+test("Timeline page shows channels in menu.", async () => {
   server.use(
-    http.get(import.meta.env.VITE_API_URL! + 'timeline/', async () => {
-      return HttpResponse.json([])
-    }),
-    http.get(import.meta.env.VITE_API_URL! + 'direct-message/', async () => {
+    http.get(import.meta.env.VITE_API_URL! + "timeline/", async () => {
       return HttpResponse.json([{
-        id: "fake-id-lol",
-        sender: "mock-sender",
-        receiver: {
-          id: "fake-id2-lol",
-          tag: "1234",
-          username: "mock-receiver"
-        }
+        id: "fake-timeline",
+        name: "mantine",
+        owner: "me",
+        default_channel: "fake-channel"
       }])
     }),
+    http.get(import.meta.env.VITE_API_URL! + "channel/:timelineId/", async () => {
+      return HttpResponse.json([{
+        id: "fake-channel",
+        name: "dev",
+        timeline: "fake-timeline"
+      }])
+    })
   )
   render(
     <BrowserRouter>
-      <HomePage />
+      <TimelinePage />
     </BrowserRouter>
   )
   const burger = await screen.findByLabelText("menu")
   await userEvent.click(burger)
-  const receiver = await screen.findByText("mock-receiver")
-  await userEvent.click(receiver)
-  expect(buttonSpy).toHaveBeenCalledWith("/direct-message/fake-id2-lol")
+  const dev = await screen.findByText("#dev")
+  expect(dev).toBeDefined()
 })
