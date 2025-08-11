@@ -33,6 +33,7 @@ function CreateTimeline({ opened, close }: Props) {
               if (!response.ok) {
                 throw new Error("Failed to create timeline")
               }
+              close()
             })
         })}>
           <Stack>
@@ -48,7 +49,6 @@ function CreateTimeline({ opened, close }: Props) {
         </form>
       </Modal.Body>
     </Modal>
-
   )
 }
 

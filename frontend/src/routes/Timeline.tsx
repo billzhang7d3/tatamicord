@@ -1,4 +1,4 @@
-import { AppShell, Avatar, Burger, Button, Group, NavLink, Stack } from "@mantine/core"
+import { AppShell, Avatar, Burger, Button, Center, Group, Modal, NavLink, Stack, Text, TextInput } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
@@ -10,6 +10,7 @@ import fetchChannels from "../api/fetchChannels"
 import ToolbarMobile from "../components/ToolbarMobile"
 import { IconSettings } from "@tabler/icons-react"
 import CreateTimeline from "../components/CreateTimeline"
+import { useForm } from "@mantine/form"
 
 const homeItself = [{
     id: "00000000-0000-0000-0000-000000000000",
@@ -27,6 +28,8 @@ function TimelinePage() {
   const [channelList, setChannelList] = useState<Channel[]>([])
   const [friendRequestPage, {open: fr_open, close: fr_close}] = useDisclosure()
   const [createTimelinePage, {open: t_open, close: t_close}] = useDisclosure()
+	const [createChannelPage, {open: c_open, close: c_close}] = useDisclosure()
+
 	useEffect(() => {
     fetchTimelines()
       .then((result) => {
@@ -41,6 +44,17 @@ function TimelinePage() {
         setChannelList(result)
       })
   }, [])
+
+	const channelForm = useForm({
+		mode: "uncontrolled",
+		initialValues: {
+			name: ""
+		},
+		validate: {
+			name: (value) => value.length > 0 ? null : "Invalid Channel Name"
+		}
+	})
+
 	return (
 		<AppShell
 			header={{ height: 60 }}
@@ -70,6 +84,42 @@ function TimelinePage() {
 			</AppShell.Header>
 			<AppShell.Navbar>
 				<Stack justify="flex-start" align="flex-start" gap="xs">
+					<Modal opened={createChannelPage} onClose={c_close} title="Create Channel">
+						<Modal.Body>
+							<form onSubmit={channelForm.onSubmit((values) => {
+								fetch(import.meta.env.VITE_API_URL!.concat(`channel/${timelineId}`), {
+									method: "POST",
+									headers: {
+										"Content-Type": "application/json",
+										"Authorization": `jwt ${localStorage.getItem("authToken")}`
+									},
+									body: JSON.stringify(values)
+								})
+									.then(response => {
+										if (!response.ok) {
+											throw new Error("Failed to create timeline")
+										}
+										close()
+									})
+							})}>
+								<Stack>
+									<TextInput
+										placeholder="Channel Name"
+										key={channelForm.key("name")}
+										{...channelForm.getInputProps("name")}
+									/>
+									<Center>
+										<Button type="submit" variant="light">Create Channel</Button>
+									</Center>
+								</Stack>
+							</form>
+						</Modal.Body>
+					</Modal>
+					<Button variant="transparent" onClick={c_open} aria-label="create channel">
+						<Text>
+							Create Channel
+						</Text>
+					</Button>
           {channelList.map(channel =>
             <NavLink
               label={`#${channel.name}`}
