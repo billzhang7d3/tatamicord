@@ -9,6 +9,7 @@ import { DirectMessageInfo, Timeline } from "../types"
 import DirectMessageList from "../components/DirectMessageList"
 import fetchTimelines from "../api/fetchTimelines"
 import fetchDirectMessages from "../api/fetchDirectMessages"
+import CreateTimeline from "../components/CreateTimeline"
 
 const homeItself = [{
     id: "00000000-0000-0000-0000-000000000000",
@@ -19,7 +20,8 @@ const homeItself = [{
 
 function HomePage() {
   const [opened, {toggle}] = useDisclosure();
-  const [friendRequestPage, {open, close}] = useDisclosure()
+  const [friendRequestPage, {open: fr_open, close: fr_close}] = useDisclosure()
+  const [createTimelinePage, {open: t_open, close: t_close}] = useDisclosure()
   const [timelineList, setTimelineList] = useState<Timeline[]>(homeItself);
   const [dmList, setDmList] = useState<DirectMessageInfo[]>([])
   useEffect(() => {
@@ -51,8 +53,9 @@ function HomePage() {
             timelineList={timelineList}
             currentTimeline={homeItself[0]}
             />
-          <FriendRequestMobile opened={friendRequestPage} close={close} />
-          <ToolbarMobile open={open}/>
+          <FriendRequestMobile opened={friendRequestPage} close={fr_close} />
+          <CreateTimeline opened={createTimelinePage} close={t_close} />
+          <ToolbarMobile openFriendModal={fr_open} openTimelineModal={t_open}/>
           <Button aria-label="settings" variant="transparent" size="xs">
             <IconSettings />
           </Button>

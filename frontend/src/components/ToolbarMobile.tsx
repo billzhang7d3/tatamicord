@@ -3,10 +3,11 @@ import { IconDotsVertical, IconLogout, IconUserPlus, IconUsers } from "@tabler/i
 import { useNavigate } from "react-router-dom"
 
 interface Props {
-  open: () => void
+  openFriendModal: () => void
+  openTimelineModal: () => void
 }
 
-function ToolbarMobile({ open }: Props) {
+function ToolbarMobile({ openFriendModal, openTimelineModal }: Props) {
   const navigate = useNavigate()
   return (
     <Menu>
@@ -23,7 +24,7 @@ function ToolbarMobile({ open }: Props) {
             Friends
           </Text>
         </Menu.Item>
-        <Menu.Item leftSection={<IconUserPlus />} onClick={open}>
+        <Menu.Item leftSection={<IconUserPlus />} onClick={openFriendModal}>
           <Text>
             Add Friend
           </Text>
@@ -34,6 +35,11 @@ function ToolbarMobile({ open }: Props) {
         }}>
           <Text c="red">
             Log Out
+          </Text>
+        </Menu.Item>
+        <Menu.Item onClick={openTimelineModal}>
+          <Text>
+            Create Timeline
           </Text>
         </Menu.Item>
       </Menu.Dropdown>

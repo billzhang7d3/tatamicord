@@ -9,6 +9,7 @@ import fetchTimelines from "../api/fetchTimelines"
 import fetchChannels from "../api/fetchChannels"
 import ToolbarMobile from "../components/ToolbarMobile"
 import { IconSettings } from "@tabler/icons-react"
+import CreateTimeline from "../components/CreateTimeline"
 
 const homeItself = [{
     id: "00000000-0000-0000-0000-000000000000",
@@ -24,7 +25,8 @@ function TimelinePage() {
 	const [opened, {toggle}] = useDisclosure()
 	const [timelineList, setTimelineList] = useState<Timeline[]>([])
   const [channelList, setChannelList] = useState<Channel[]>([])
-  const [friendRequestPage, {open, close}] = useDisclosure()
+  const [friendRequestPage, {open: fr_open, close: fr_close}] = useDisclosure()
+  const [createTimelinePage, {open: t_open, close: t_close}] = useDisclosure()
 	useEffect(() => {
     fetchTimelines()
       .then((result) => {
@@ -58,8 +60,9 @@ function TimelinePage() {
             timelineList={timelineList}
             currentTimeline={currentTimeline}
           />
-					<FriendRequestMobile opened={friendRequestPage} close={close} />
-					<ToolbarMobile open={open}/>
+					<FriendRequestMobile opened={friendRequestPage} close={fr_close} />
+          <CreateTimeline opened={createTimelinePage} close={t_close} />
+					<ToolbarMobile openFriendModal={fr_open} openTimelineModal={t_open}/>
 					<Button aria-label="settings" variant="transparent" size="xs">
             <IconSettings />
           </Button>

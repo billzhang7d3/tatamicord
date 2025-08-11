@@ -40,7 +40,6 @@ function FriendRequestMobile({ opened, close }: Props) {
     }
   })
 
-
   return (
     <Modal opened={opened} onClose={close} title="Send a Friend Request">
       <Modal.Body>

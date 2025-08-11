@@ -12,6 +12,7 @@ import DirectMessageList from "../components/DirectMessageList"
 import fetchTimelines from "../api/fetchTimelines"
 import fetchDirectMessages from "../api/fetchDirectMessages"
 import fetchDmMessages from "../api/fetchDmMessages"
+import CreateTimeline from "../components/CreateTimeline"
 
 const homeItself: Timeline[] = [{
     id: "00000000-0000-0000-0000-000000000000",
@@ -32,7 +33,8 @@ function dateFormat(isoDate: string): string {
 function DirectMessagePage() {
   const { id } = useParams()
   const [opened, {toggle}] = useDisclosure()
-  const [friendRequestPage, {open, close}] = useDisclosure()
+  const [friendRequestPage, {open: fr_open, close: fr_close}] = useDisclosure()
+  const [createTimelinePage, {open: t_open, close: t_close}] = useDisclosure()
   const [dmList, setDmList] = useState<DirectMessageInfo[]>([])
   const [timelineList, setTimelineList] = useState<Timeline[]>(homeItself)
   const [messageList, setMessageList] = useState<Message[]>([])
@@ -83,8 +85,9 @@ function DirectMessagePage() {
             timelineList={timelineList}
             currentTimeline={homeItself[0]}
             />
-          <FriendRequestMobile opened={friendRequestPage} close={close} />
-          <ToolbarMobile open={open}/>
+          <FriendRequestMobile opened={friendRequestPage} close={fr_close} />
+          <CreateTimeline opened={createTimelinePage} close={t_close} />
+          <ToolbarMobile openFriendModal={fr_open} openTimelineModal={t_open}/>
           <Button aria-label="settings" variant="transparent" size="xs">
             <IconSettings />
           </Button>

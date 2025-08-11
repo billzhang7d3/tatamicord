@@ -92,3 +92,95 @@ describe("Friends Page Test", () => {
   })
 
 })
+
+describe("Timeline Creation Tests", () => {
+  beforeAll(() => {
+    server.listen()
+  }) 
+
+  afterAll(() => {
+    server.close()
+  })
+
+  beforeEach(() => {
+    server.resetHandlers()
+  })
+
+  test("Clicking Create Timeline will show the modal.", async () => {
+    server.use(
+      http.get(import.meta.env.VITE_API_URL! + 'timeline/', async () => {
+        return HttpResponse.json([])
+      }),
+      http.get(import.meta.env.VITE_API_URL! + 'direct-message/', async () => {
+        return HttpResponse.json([])
+      }),
+    )
+    render(
+      <BrowserRouter>
+        <HomePage />
+      </BrowserRouter>
+    )
+    const threedots = await screen.findByLabelText("more options")
+    await userEvent.click(threedots)
+    const button = await screen.findByText("Create Timeline")
+    await userEvent.click(button)
+    const label = await screen.findByPlaceholderText("Timeline Name")
+    expect(label).toBeDefined()
+  })
+
+  test("Timeline creation works.", async () => {
+    let defined = false
+    server.use(
+      http.get(import.meta.env.VITE_API_URL! + "timeline/", async () => {
+        return HttpResponse.json([])
+      }),
+      http.get(import.meta.env.VITE_API_URL! + "direct-message/", async () => {
+        return HttpResponse.json([])
+      }),
+      http.post(import.meta.env.VITE_API_URL! + "timeline/", async () => {
+        defined = true
+        return HttpResponse.json({})
+      })
+    )
+    render(
+      <BrowserRouter>
+        <HomePage />
+      </BrowserRouter>
+    )
+    const threedots = await screen.findByLabelText("more options")
+    await userEvent.click(threedots)
+    const button = await screen.findByText("Create Timeline")
+    await userEvent.click(button)
+    const label = await screen.findByPlaceholderText("Timeline Name")
+    await userEvent.type(label, "galaxy")
+    const submit = await screen.findByText("Create My Timeline!")
+    await userEvent.click(submit)
+    expect(defined).toBeTruthy()
+  })
+
+  test("Can't submit an empty timeline.", async () => {
+    let defined = false
+    server.use(
+      http.get(import.meta.env.VITE_API_URL! + "timeline/", async () => {
+        return HttpResponse.json([])
+      }),
+      http.get(import.meta.env.VITE_API_URL! + "direct-message/", async () => {
+        return HttpResponse.json([])
+      })
+    )
+    render(
+      <BrowserRouter>
+        <HomePage />
+      </BrowserRouter>
+    )
+    const threedots = await screen.findByLabelText("more options")
+    await userEvent.click(threedots)
+    const button = await screen.findByText("Create Timeline")
+    await userEvent.click(button)
+    const submit = await screen.findByText("Create My Timeline!")
+    await userEvent.click(submit)
+    const warningText = await screen.findByText("Timeline name can't be empty")
+    expect(warningText).toBeDefined()
+  })
+
+})
