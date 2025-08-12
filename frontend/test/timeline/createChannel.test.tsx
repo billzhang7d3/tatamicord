@@ -64,8 +64,49 @@ test("Can create channel.", async () => {
   )
   const burger = await screen.findByLabelText("menu")
   await userEvent.click(burger)
-  const createChannel = await screen.findByLabelText("create channel")
+  const createChannel = await screen.findByText("Create Channel")
   await userEvent.click(createChannel)
   const textBox = await screen.findByPlaceholderText("Channel Name")
   expect(textBox).toBeDefined()
+})
+
+// channel name can't be empty
+test("Channel name can't be empty.", async () => {
+  server.use(
+    http.get(import.meta.env.VITE_API_URL! + "timeline/", async () => {
+      return HttpResponse.json([{
+        id: "fake-timeline",
+        name: "mantine",
+        owner: "me",
+        default_channel: "fake-channel"
+      }])
+    }),
+    http.get(import.meta.env.VITE_API_URL! + "channel/:timelineId/", async () => {
+      return HttpResponse.json([{
+        id: "fake-channel",
+        name: "dev",
+        timeline: "fake-timeline"
+      }])
+    }),
+    http.post(import.meta.env.VITE_API_URL! + "channel/:timelineId/", async () => {
+      return HttpResponse.json([{
+        id: "fake-channel-2",
+        name: "bjork",
+        timeline: "fake-timeline"
+      }])
+    })
+  )
+  render(
+    <BrowserRouter>
+      <TimelinePage />
+    </BrowserRouter>
+  )
+  const burger = await screen.findByLabelText("menu")
+  await userEvent.click(burger)
+  const createChannel = await screen.findByText("Create Channel")
+  await userEvent.click(createChannel)
+  const createChannel2 = await screen.findByLabelText("create channel")
+  await userEvent.click(createChannel2)
+  const invalidText = await screen.findByText("Invalid Channel Name")
+  expect(invalidText).toBeDefined()
 })

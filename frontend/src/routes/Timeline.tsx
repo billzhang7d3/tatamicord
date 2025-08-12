@@ -87,7 +87,7 @@ function TimelinePage() {
 					<Modal opened={createChannelPage} onClose={c_close} title="Create Channel">
 						<Modal.Body>
 							<form onSubmit={channelForm.onSubmit((values) => {
-								fetch(import.meta.env.VITE_API_URL!.concat(`channel/${timelineId}`), {
+								fetch(import.meta.env.VITE_API_URL!.concat(`channel/${timelineId}/`), {
 									method: "POST",
 									headers: {
 										"Content-Type": "application/json",
@@ -97,9 +97,9 @@ function TimelinePage() {
 								})
 									.then(response => {
 										if (!response.ok) {
-											throw new Error("Failed to create timeline")
+											throw new Error("Failed to create channel")
 										}
-										close()
+										c_close()
 									})
 							})}>
 								<Stack>
@@ -109,13 +109,17 @@ function TimelinePage() {
 										{...channelForm.getInputProps("name")}
 									/>
 									<Center>
-										<Button type="submit" variant="light">Create Channel</Button>
+										<Button type="submit" variant="light" aria-label="create channel">
+											<Text>
+												Create Channel
+											</Text>
+										</Button>
 									</Center>
 								</Stack>
 							</form>
 						</Modal.Body>
 					</Modal>
-					<Button variant="transparent" onClick={c_open} aria-label="create channel">
+					<Button variant="light" onClick={c_open}>
 						<Text>
 							Create Channel
 						</Text>
