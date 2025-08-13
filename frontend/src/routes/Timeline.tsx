@@ -29,6 +29,7 @@ function TimelinePage() {
   const [friendRequestPage, {open: fr_open, close: fr_close}] = useDisclosure()
   const [createTimelinePage, {open: t_open, close: t_close}] = useDisclosure()
 	const [createChannelPage, {open: c_open, close: c_close}] = useDisclosure()
+  const [timelineTrigger, setTimelineTrigger] = useState((new Date()).toISOString())
 
 	useEffect(() => {
     fetchTimelines()
@@ -37,7 +38,7 @@ function TimelinePage() {
         setTimelineList(newTimelineList)
 				setCurrentTimeline(newTimelineList.find(timeline => timeline.id === timelineId))
       })
-  }, [])
+  }, [timelineTrigger])
 	useEffect(() => {
     fetchChannels(timelineId!)
       .then((result) => {
@@ -75,7 +76,7 @@ function TimelinePage() {
             currentTimeline={currentTimeline}
           />
 					<FriendRequestMobile opened={friendRequestPage} close={fr_close} />
-          <CreateTimeline opened={createTimelinePage} close={t_close} />
+          <CreateTimeline opened={createTimelinePage} close={t_close} trigger={setTimelineTrigger}/>
 					<ToolbarMobile openFriendModal={fr_open} openTimelineModal={t_open}/>
 					<Button aria-label="settings" variant="transparent" size="xs">
             <IconSettings />

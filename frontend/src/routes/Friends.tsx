@@ -15,23 +15,30 @@ function FriendsPage() {
   const [friendsList, setFriendsList] = useState<Member[]>([])
   const [incomingRequestsList, setIncomingRequestsList] = useState<Member[]>([])
   const [outgoingRequestsList, setOutgoingRequestsList] = useState<Member[]>([])
+  const [triggerFriends, setTriggerFriends] = useState<boolean>(false)
+  const [triggerIncoming, setTriggerIncoming] = useState<boolean>(false)
+  const [triggerOutgoing, setTriggerOutgoing] = useState<boolean>(false)
   useEffect(() => {
     // fetch friends list
     fetchFriends(CURRENT)
       .then(result => {
         setFriendsList(result)
       })
+  }, [triggerFriends])
+  useEffect(() => {
     // fetch incoming friends
     fetchFriends(INCOMING)
       .then(result => {
         setIncomingRequestsList(result)
       })
+  }, [triggerIncoming])
+  useEffect(() => {
     // fetch incoming friends
     fetchFriends(OUTGOING)
       .then(result => {
         setOutgoingRequestsList(result)
       })
-  }, [])
+  }, [triggerOutgoing])
   return (
     <AppShell
       header={{ height: 60 }}
@@ -102,6 +109,7 @@ function FriendsPage() {
                             "Authorization": `jwt ${localStorage.getItem("authToken")}`
                           }
                         })
+                        .then(() => setTriggerFriends(!triggerFriends))
                       }}>
                         <Text c="red">
                           Remove Friend
@@ -131,6 +139,8 @@ function FriendsPage() {
                             "Authorization": `jwt ${localStorage.getItem("authToken")}`
                           }
                         })
+                        .then(() => setTriggerFriends(!triggerFriends))
+                        .then(() => setTriggerIncoming(!triggerIncoming))
                         fetch(import.meta.env.VITE_API_URL!.concat("direct-message/"), {
                           method: "POST",
                           headers: {
@@ -154,6 +164,7 @@ function FriendsPage() {
                             "Authorization": `jwt ${localStorage.getItem("authToken")}`
                           }
                         })
+                        .then(() => setTriggerIncoming(!triggerIncoming))
                       }}
                       style={{marginLeft: "auto", marginRight: 0}}
                     >
@@ -178,6 +189,7 @@ function FriendsPage() {
                           "Authorization": `jwt ${localStorage.getItem("authToken")}`
                         }
                       })
+                        .then(() => setTriggerOutgoing(!triggerOutgoing))
                     }}
                   >
                     <IconUserX />

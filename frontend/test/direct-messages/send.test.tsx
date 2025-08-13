@@ -35,6 +35,7 @@ beforeEach(() => {
 })
 
 test("User can send messages.", async () => {
+  let posted = false;
   server.use(
     http.get(import.meta.env.VITE_API_URL! + 'timeline/', async () => {
       return HttpResponse.json([])
@@ -54,6 +55,7 @@ test("User can send messages.", async () => {
       return HttpResponse.json([])
     }),
     http.post(import.meta.env.VITE_API_URL! + "direct-message/:id", async () => {
+      posted = true;
       return HttpResponse.json({
         id: "fake-message-id",
         location: "fake-message-location",
@@ -79,8 +81,7 @@ test("User can send messages.", async () => {
   await userEvent.type(textBox, "half of what I say is meaningless")
   const sendMessage = await screen.findByLabelText("Send message")
   await userEvent.click(sendMessage)
-  // const message = await screen.findByText("julia")
-  // expect(message).toBeDefined()
+  expect(posted).toBeTruthy()
 })
 
 test("User can't send empty messages.", async () => {

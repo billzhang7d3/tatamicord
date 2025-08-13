@@ -24,16 +24,21 @@ function HomePage() {
   const [createTimelinePage, {open: t_open, close: t_close}] = useDisclosure()
   const [timelineList, setTimelineList] = useState<Timeline[]>(homeItself);
   const [dmList, setDmList] = useState<DirectMessageInfo[]>([])
+  const [timelineTrigger, setTimelineTrigger] = useState((new Date()).toISOString())
+
   useEffect(() => {
     fetchTimelines()
       .then((result) => {
         setTimelineList(homeItself.concat(result))
       })
+  }, [timelineTrigger])
+  useEffect(() => {
     fetchDirectMessages()
       .then((result) => {
         setDmList(result)
       })
   }, [])
+
   return (
     <AppShell
       header={{ height: 60 }}
@@ -54,7 +59,7 @@ function HomePage() {
             currentTimeline={homeItself[0]}
             />
           <FriendRequestMobile opened={friendRequestPage} close={fr_close} />
-          <CreateTimeline opened={createTimelinePage} close={t_close} />
+          <CreateTimeline opened={createTimelinePage} close={t_close} trigger={setTimelineTrigger} />
           <ToolbarMobile openFriendModal={fr_open} openTimelineModal={t_open}/>
           <Button aria-label="settings" variant="transparent" size="xs">
             <IconSettings />

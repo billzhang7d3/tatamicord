@@ -33,6 +33,7 @@ beforeEach(() => {
 })
 
 test("Can create channel.", async () => {
+  let called = false
   server.use(
     http.get(import.meta.env.VITE_API_URL! + "timeline/", async () => {
       return HttpResponse.json([{
@@ -50,6 +51,7 @@ test("Can create channel.", async () => {
       }])
     }),
     http.post(import.meta.env.VITE_API_URL! + "channel/:timelineId/", async () => {
+      called = true
       return HttpResponse.json([{
         id: "fake-channel-2",
         name: "bjork",
@@ -67,7 +69,10 @@ test("Can create channel.", async () => {
   const createChannel = await screen.findByText("Create Channel")
   await userEvent.click(createChannel)
   const textBox = await screen.findByPlaceholderText("Channel Name")
-  expect(textBox).toBeDefined()
+  await userEvent.type(textBox, "bjork")
+  const submit = await screen.findByLabelText("create channel")
+  await userEvent.click(submit)
+  expect(called).toBeTruthy()
 })
 
 // channel name can't be empty

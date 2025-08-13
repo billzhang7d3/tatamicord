@@ -39,6 +39,7 @@ function DirectMessagePage() {
   const [timelineList, setTimelineList] = useState<Timeline[]>(homeItself)
   const [messageList, setMessageList] = useState<Message[]>([])
   const [recentMessageTimestamp, setRecentMessageTimestamp] = useState((new Date()).toISOString())
+  const [timelineTrigger, setTimelineTrigger] = useState((new Date()).toISOString())
   const [messagesHeight, setMessagesHeight] = useState(window.innerHeight)
   const messagesRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -46,13 +47,13 @@ function DirectMessagePage() {
       .then((result) => {
         setTimelineList(homeItself.concat(result))
       })
-  }, [])
+  }, [timelineTrigger])
   useEffect(() => {
     fetchDirectMessages()
       .then((result) => {
         setDmList(result)
       })
-  }, [recentMessageTimestamp])
+  }, [])
   useEffect(() => {
     fetchDmMessages(id!)
       .then((result) => {
@@ -84,9 +85,10 @@ function DirectMessagePage() {
           <TimelineBar
             timelineList={timelineList}
             currentTimeline={homeItself[0]}
-            />
+
+          />
           <FriendRequestMobile opened={friendRequestPage} close={fr_close} />
-          <CreateTimeline opened={createTimelinePage} close={t_close} />
+          <CreateTimeline opened={createTimelinePage} close={t_close} trigger={setTimelineTrigger} />
           <ToolbarMobile openFriendModal={fr_open} openTimelineModal={t_open}/>
           <Button aria-label="settings" variant="transparent" size="xs">
             <IconSettings />

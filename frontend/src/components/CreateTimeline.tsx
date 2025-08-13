@@ -4,9 +4,10 @@ import { useForm } from "@mantine/form"
 interface Props {
   opened: boolean
   close: () => void
+  trigger: (value: string) => void
 }
 
-function CreateTimeline({ opened, close }: Props) {
+function CreateTimeline({ opened, close, trigger }: Props) {
   const timelineForm = useForm({
     mode: "uncontrolled",
     initialValues: {
@@ -33,6 +34,7 @@ function CreateTimeline({ opened, close }: Props) {
               if (!response.ok) {
                 throw new Error("Failed to create timeline")
               }
+              trigger((new Date()).toISOString())
               close()
             })
         })}>
