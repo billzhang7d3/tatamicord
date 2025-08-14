@@ -65,6 +65,8 @@ pub async fn create_app() -> Router {
         .route("/direct-message/{id}/", post(handlers::direct_message::send_dm_handler))
         .route("/channel/{id}/", get(handlers::channel::get_channels_from_timeline_handler))
         .route("/channel/{id}/", post(handlers::channel::create_channel_handler))
+        .route("/messages/{id}/", get(handlers::channel::get_messages_handler))
+        .route("/message/{id}/", post(handlers::channel::send_message_handler))
         .with_state(client_clone)
         .layer(ServiceBuilder::new()
             .layer(cors));
