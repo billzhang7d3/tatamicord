@@ -120,8 +120,60 @@ mod channel_tests {
             .assert_status_success();
     }
 
-    // need to add error case tests
-    // channel doesn't exist -> 404
+    #[tokio::test]
+    async fn sending_a_message_to_nonexistent_channel() {
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let roa: Credentials = Credentials {
+            email: "roa@example.com".to_string(),
+            password: "jellyfish".to_string()
+        };
+        let jwt = login(&server, &roa).await;
+        let channel_id = "00000000-0000-0000-0000-000000000000";
+        // send message
+        let message = MessageInput {
+            content: "I'm your senpai now".to_owned()
+        };
+        server.post(&format!("/message/{}/", channel_id))
+            .add_header("Authorization", format!("jwt {}", jwt))
+            .json::<MessageInput>(&message)
+            .await
+            .assert_status_not_found();
+    }
+
     // user not in timeline -> also 404
+    #[tokio::test]
+    async fn sending_a_message_but_user_not_in_timeline() {
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let roa: Credentials = Credentials {
+            email: "roa@example.com".to_string(),
+            password: "jellyfish".to_string()
+        };
+        let roa_jwt = login(&server, &roa).await;
+        // create timeline and get channel first
+        let timeline_input = TimelineInput {
+            name: "Dolphin Consciousness".to_owned()
+        };
+        let channel_id = server.post("/timeline/")
+            .add_header("Authorization", format!("jwt {}", roa_jwt))
+            .json::<TimelineInput>(&timeline_input)
+            .await
+            .json::<Timeline>()
+            .default_channel;
+        let polka: Credentials = Credentials {
+            email: "polka@example.com".to_string(),
+            password: "performer".to_string()
+        };
+        let polka_jwt = login(&server, &polka).await;
+        // send message
+        let message = MessageInput {
+            content: "I'm your senpai now".to_owned()
+        };
+        server.post(&format!("/message/{}/", channel_id))
+            .add_header("Authorization", format!("jwt {}", polka_jwt))
+            .json::<MessageInput>(&message)
+            .await
+            .assert_status_not_found();
+    }
+
 
 }
