@@ -63,13 +63,20 @@ pub async fn get_messages_handler(
         ).into_response();
     }
     // retrieve messages
-    let messages =
-        channel::get_all_messages_from_channel(&client, id)
+    let member_id = auth_result.unwrap().id;
+    let messages_result =
+        channel::get_all_messages_from_channel(&client, member_id, id)
         .await;
-    return (
-        StatusCode::OK,
-        serde_json::to_string(&messages).unwrap()
-    ).into_response();
+    return match messages_result {
+        Ok(messages) => (
+            StatusCode::OK,
+            serde_json::to_string(&messages).unwrap()
+        ).into_response(),
+        Err(_err) => (
+            StatusCode::NOT_FOUND,
+            "{\"error\":\"Not Found.\"}"
+        ).into_response()
+    };
 }
 
 pub async fn send_message_handler(

@@ -38,3 +38,34 @@ BEGIN
 END;
 $BODY$
 LANGUAGE plpgsql;
+
+CREATE FUNCTION get_messages_from_channel(user_id UUID, channel_id UUID)
+RETURNS SETOF message AS
+$BODY$
+DECLARE
+    selected_timeline_id UUID;
+BEGIN
+    -- check if user is in timeline
+    SELECT t.id INTO selected_timeline_id
+    FROM member m, member_timeline mt, timeline t, channel c
+    WHERE m.id = mt.member_id
+    AND mt.timeline_id = t.id
+    AND t.id = c.timeline_id
+    AND m.id = user_id
+    AND c.id = channel_id;
+    IF selected_timeline_id IS NULL THEN
+        RAISE EXCEPTION 'user is not in specified channel';
+    END IF;
+    -- select the messages
+    RETURN QUERY SELECT
+        id,
+        location,
+        sender,
+        content,
+        time_sent,
+        edited
+    FROM message
+    WHERE location = channel_id;
+END;
+$BODY$
+LANGUAGE plpgsql;

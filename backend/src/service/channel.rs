@@ -51,8 +51,9 @@ RETURNING id::TEXT, channel_name, timeline_id::TEXT AS timeline_id;"#;
 
 pub async fn get_all_messages_from_channel(
     client: &Arc<Client>,
+    member_id: String,
     channel_id: String
-) -> Vec<Message> {
+) -> Result<Vec<Message>, String> {
     let query = r#"
 SELECT
     msg.id::TEXT AS msg_id,
@@ -63,26 +64,27 @@ SELECT
     msg.content AS content,
     msg.time_sent AS time_sent,
     msg.edited AS edited
-FROM message msg
+FROM get_messages_from_channel(CAST($1::TEXT AS UUID), CAST($2::TEXT AS UUID)) msg
 INNER JOIN member m
-ON m.id = msg.sender
-WHERE msg.location::TEXT = $1::TEXT;"#;
-    let rows = client
-        .query(query, &[&channel_id])
-        .await
-        .unwrap();
-    return rows.iter().map(|row| Message {
-        id: row.get::<&str, String>("msg_id"),
-        location: row.get::<&str, String>("location"),
-        sender: Member {
-            id: row.get::<&str, String>("member_id"),
-            username: row.get::<&str, String>("username"),
-            tag: row.get::<&str, String>("tag")
-        },
-        content: row.get::<&str, String>("content"),
-        time_sent: row.get::<&str, String>("time_sent"),
-        edited: row.get::<&str, bool>("edited")
-    }).collect();
+ON m.id = msg.sender;"#;
+    let rows_result = client
+        .query(query, &[&member_id, &channel_id])
+        .await;
+    return match rows_result {
+        Ok(rows) => Ok(rows.iter().map(|row| Message {
+            id: row.get::<&str, String>("msg_id"),
+            location: row.get::<&str, String>("location"),
+            sender: Member {
+                id: row.get::<&str, String>("member_id"),
+                username: row.get::<&str, String>("username"),
+                tag: row.get::<&str, String>("tag")
+            },
+            content: row.get::<&str, String>("content"),
+            time_sent: row.get::<&str, String>("time_sent"),
+            edited: row.get::<&str, bool>("edited")
+        }).collect()),
+        Err(_err) => Err("Channel not found".to_string())
+    };
 }
 
 pub async fn send_message(

@@ -22,11 +22,11 @@ mod channel_tests {
     #[tokio::test]
     async fn getting_messages_works() {
         let server = TestServer::new(app::create_app().await).unwrap();
-        let roa: Credentials = Credentials {
+        let luna: Credentials = Credentials {
             email: "luna@example.com".to_string(),
             password: "princess".to_string()
         };
-        let jwt = login(&server, &roa).await;
+        let jwt = login(&server, &luna).await;
         // create timeline and get channel first
         let timeline_input = TimelineInput {
             name: "COBOL Enjoyers".to_owned()
@@ -51,6 +51,40 @@ mod channel_tests {
     }
 
     // need to add test for if user is allowed to see channel
+    #[tokio::test]
+    async fn unauthorized_channel_messaages_access() {
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let choco: Credentials = Credentials {
+            email: "choco@example.com".to_string(),
+            password: "nurse".to_string()
+        };
+        let choco_jwt = login(&server, &choco).await;
+        // create timeline and get channel first
+        let timeline_input = TimelineInput {
+            name: "Syringes".to_owned()
+        };
+        let timeline_id = server.post("/timeline/")
+            .add_header("Authorization", format!("jwt {}", choco_jwt))
+            .json::<TimelineInput>(&timeline_input)
+            .await
+            .json::<Timeline>()
+            .id;
+        let channel_list = server.get(&format!("/channel/{}/", timeline_id))
+            .add_header("Authorization", format!("jwt {}", choco_jwt))
+            .await
+            .json::<Vec<Channel>>();
+        let channel_id = &channel_list[0].id;
+        let roa: Credentials = Credentials {
+            email: "roa@example.com".to_owned(),
+            password: "jellyfish".to_owned()
+        };
+        let roa_jwt = login(&server, &roa).await;
+        // get messages
+        server.get(&format!("/messages/{}/", channel_id))
+            .add_header("Authorization", format!("jwt {}", roa_jwt))
+            .await
+            .assert_status_not_found();
+    }
 
     #[tokio::test]
     async fn sending_a_message_works() {
