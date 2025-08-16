@@ -1,5 +1,5 @@
 import { Button, Menu, Text } from "@mantine/core"
-import { IconDotsVertical, IconLogout, IconUserPlus, IconUsers } from "@tabler/icons-react"
+import { IconDotsVertical, IconLogout, IconUserPlus, IconUsers, IconArrowRightDashed } from "@tabler/icons-react"
 import { useNavigate } from "react-router-dom"
 
 interface Props {
@@ -37,7 +37,7 @@ function ToolbarMobile({ openFriendModal, openTimelineModal }: Props) {
             Log Out
           </Text>
         </Menu.Item>
-        <Menu.Item onClick={openTimelineModal}>
+        <Menu.Item leftSection={<IconArrowRightDashed />} onClick={openTimelineModal}>
           <Text>
             Create Timeline
           </Text>

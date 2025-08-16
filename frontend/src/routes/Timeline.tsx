@@ -1,4 +1,4 @@
-import { AppShell, Avatar, Box, Burger, Button, Center, Flex, Group, Modal, NavLink, Paper, ScrollArea, Stack, Text, TextInput } from "@mantine/core"
+import { AppShell, Avatar, Box, Burger, Button, Group, NavLink, Paper, ScrollArea, Stack, } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import { useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
@@ -10,10 +10,10 @@ import fetchChannels from "../api/fetchChannels"
 import ToolbarMobile from "../components/ToolbarMobile"
 import { IconSettings } from "@tabler/icons-react"
 import CreateTimeline from "../components/CreateTimeline"
-import { useForm } from "@mantine/form"
 import fetchChannelMessages from "../api/fetchChannelMessages"
-import dateFormat from "../util/dateFormat"
 import ChannelMessageBox from "../components/ChannelMessageBox"
+import MessageList from "../components/MessageList"
+import CreateChannel from "../components/CreateChannel"
 
 const homeItself = [{
     id: "00000000-0000-0000-0000-000000000000",
@@ -33,8 +33,8 @@ function TimelinePage() {
   const [recentMessageTimestamp, setRecentMessageTimestamp] = useState((new Date()).toISOString())
   const [friendRequestPage, {open: fr_open, close: fr_close}] = useDisclosure()
   const [createTimelinePage, {open: t_open, close: t_close}] = useDisclosure()
-	const [createChannelPage, {open: c_open, close: c_close}] = useDisclosure()
   const [timelineTrigger, setTimelineTrigger] = useState((new Date()).toISOString())
+  const [channelTrigger, setChannelTrigger] = useState((new Date()).toISOString())
   const [messagesHeight, setMessagesHeight] = useState(window.innerHeight)
   const messagesRef = useRef<HTMLDivElement>(null)
 
@@ -45,13 +45,13 @@ function TimelinePage() {
         setTimelineList(newTimelineList)
 				setCurrentTimeline(newTimelineList.find(timeline => timeline.id === timelineId))
       })
-  }, [timelineTrigger])
+  }, [timelineId, timelineTrigger])
 	useEffect(() => {
     fetchChannels(timelineId!)
       .then((result) => {
         setChannelList(result)
       })
-  }, [])
+  }, [timelineId, channelTrigger])
 	useEffect(() => {
 		fetchChannelMessages(channelId!)
 			.then((result) => {
@@ -63,16 +63,6 @@ function TimelinePage() {
     window.addEventListener("resize", handleResize)
     return () => window.removeEventListener("resize", handleResize)
   }, [])
-
-	const channelForm = useForm({
-		mode: "uncontrolled",
-		initialValues: {
-			name: ""
-		},
-		validate: {
-			name: (value) => value.length > 0 ? null : "Invalid Channel Name"
-		}
-	})
 
 	return (
 		<AppShell
@@ -102,47 +92,8 @@ function TimelinePage() {
 				</Group>
 			</AppShell.Header>
 			<AppShell.Navbar>
+				<CreateChannel timelineId={timelineId!} channelTrigger={setChannelTrigger} />
 				<Stack justify="flex-start" align="flex-start" gap="xs">
-					<Modal opened={createChannelPage} onClose={c_close} title="Create Channel">
-						<Modal.Body>
-							<form onSubmit={channelForm.onSubmit((values) => {
-								fetch(import.meta.env.VITE_API_URL!.concat(`channel/${timelineId}/`), {
-									method: "POST",
-									headers: {
-										"Content-Type": "application/json",
-										"Authorization": `jwt ${localStorage.getItem("authToken")}`
-									},
-									body: JSON.stringify(values)
-								})
-									.then(response => {
-										if (!response.ok) {
-											throw new Error("Failed to create channel")
-										}
-										c_close()
-									})
-							})}>
-								<Stack>
-									<TextInput
-										placeholder="Channel Name"
-										key={channelForm.key("name")}
-										{...channelForm.getInputProps("name")}
-									/>
-									<Center>
-										<Button type="submit" variant="light" aria-label="create channel">
-											<Text>
-												Create Channel
-											</Text>
-										</Button>
-									</Center>
-								</Stack>
-							</form>
-						</Modal.Body>
-					</Modal>
-					<Button variant="light" onClick={c_open}>
-						<Text>
-							Create Channel
-						</Text>
-					</Button>
           {channelList.map(channel =>
             <NavLink
               label={`#${channel.name}`}
@@ -158,33 +109,7 @@ function TimelinePage() {
 			</AppShell.Navbar>
 			<AppShell.Main>
 				<ScrollArea h={messagesHeight - 160} viewportRef={messagesRef} style={{ flex: 1 }}>
-					{messageList.map(message => 
-						<Flex
-							key={message.id}
-							gap="md"
-							wrap="nowrap"
-							style={{maxWidth: "300px"}}
-						>
-							<Box style={{verticalAlign: "top"}}>
-								<Avatar radius="xl" />
-							</Box>
-							<Box style={{ position: 'static' }}>
-								<Group gap="xs">
-									<Text fw={700}>
-										{message.sender.username}
-									</Text>
-									<Text size="xs">
-										{dateFormat(message.time_sent)}
-									</Text>
-								</Group>
-								<Box>
-									<Text>
-										{message.content}
-									</Text>
-								</Box>
-							</Box>
-						</Flex>
-					)}
+					<MessageList messageList={messageList} />
 				</ScrollArea>
         <Box component="footer" mt="auto" style={{
           position: "sticky",

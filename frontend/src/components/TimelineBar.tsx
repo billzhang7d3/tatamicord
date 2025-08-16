@@ -10,7 +10,8 @@ interface Props {
 
 function TimelineBar({ timelineList, currentTimeline }: Props) {
   const navigate = useNavigate()
-  const [opened, {open, close}] = useDisclosure(false);
+  const [opened, {open, close}] = useDisclosure(false)
+  // console.log("currently at", currentTimeline?.name, `with id=${currentTimeline?.id}`)
   return (
     <Box style={{flex: 1, maxWidth: "500px", margin: "auto"}}>
       <Modal opened={opened} onClose={close} centered title="Timelines">

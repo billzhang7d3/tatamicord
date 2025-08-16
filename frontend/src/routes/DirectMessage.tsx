@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { DirectMessageInfo, Message, Timeline } from "../types"
-import { AppShell, Burger, Button, Group, Avatar, Box, Text, Paper, Flex, ScrollArea } from "@mantine/core"
+import { AppShell, Burger, Button, Group, Box, Paper, ScrollArea } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import { useParams } from "react-router-dom"
 import TimelineBar from "../components/TimelineBar"
@@ -12,8 +12,8 @@ import fetchTimelines from "../api/fetchTimelines"
 import fetchDirectMessages from "../api/fetchDirectMessages"
 import fetchDmMessages from "../api/fetchDmMessages"
 import CreateTimeline from "../components/CreateTimeline"
-import dateFormat from "../util/dateFormat"
 import DirectMessageBox from "../components/DirectMessageBox"
+import MessageList from "../components/MessageList"
 
 const homeItself: Timeline[] = [{
     id: "00000000-0000-0000-0000-000000000000",
@@ -34,6 +34,7 @@ function DirectMessagePage() {
   const [timelineTrigger, setTimelineTrigger] = useState((new Date()).toISOString())
   const [messagesHeight, setMessagesHeight] = useState(window.innerHeight)
   const messagesRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     fetchTimelines()
       .then((result) => {
@@ -93,32 +94,7 @@ function DirectMessagePage() {
       </AppShell.Navbar>
       <AppShell.Main>
         <ScrollArea h={messagesHeight - 160} viewportRef={messagesRef} style={{ flex: 1 }}>
-          {messageList.map(message => 
-            <Flex
-              key={message.id}
-              gap="md"
-              wrap="nowrap"
-            >
-              <Box style={{verticalAlign: "top"}}>
-                <Avatar radius="xl" />
-              </Box>
-              <Box style={{ position: 'static' }}>
-                <Group gap="xs">
-                  <Text fw={700}>
-                    {message.sender.username}
-                  </Text>
-                  <Text size="xs">
-                    {dateFormat(message.time_sent)}
-                  </Text>
-                </Group>
-                <Box>
-                  <Text>
-                    {message.content}
-                  </Text>
-                </Box>
-              </Box>
-            </Flex>
-          )}
+          <MessageList messageList={messageList} />
         </ScrollArea>
         <Box component="footer" mt="auto" style={{
           position: "sticky",
