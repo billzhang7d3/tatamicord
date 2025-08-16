@@ -57,6 +57,9 @@ test("Can create channel.", async () => {
         name: "bjork",
         timeline: "fake-timeline"
       }])
+    }),
+    http.get(import.meta.env.VITE_API_URL! + "messages/:channelId/", async () => {
+      return HttpResponse.json([])
     })
   )
   render(
@@ -99,6 +102,9 @@ test("Channel name can't be empty.", async () => {
         name: "bjork",
         timeline: "fake-timeline"
       }])
+    }),
+    http.get(import.meta.env.VITE_API_URL! + "messages/:channelId/", async () => {
+      return HttpResponse.json([])
     })
   )
   render(

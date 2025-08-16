@@ -29,39 +29,8 @@ beforeEach(() => {
   server.resetHandlers()
 })
 
-test("Timeline page shows channels in menu.", async () => {
-  server.use(
-    http.get(import.meta.env.VITE_API_URL! + "timeline/", async () => {
-      return HttpResponse.json([{
-        id: "fake-timeline",
-        name: "mantine",
-        owner: "me",
-        default_channel: "fake-channel"
-      }])
-    }),
-    http.get(import.meta.env.VITE_API_URL! + "channel/:timelineId/", async () => {
-      return HttpResponse.json([{
-        id: "fake-channel",
-        name: "dev",
-        timeline: "fake-timeline"
-      }])
-    }),
-    http.get(import.meta.env.VITE_API_URL! + "messages/:channelId/", async () => {
-      return HttpResponse.json([])
-    })
-  )
-  render(
-    <BrowserRouter>
-      <TimelinePage />
-    </BrowserRouter>
-  )
-  const burger = await screen.findByLabelText("menu")
-  await userEvent.click(burger)
-  const dev = await screen.findByText("#dev")
-  expect(dev).toBeDefined()
-})
-
-test("Timeline page shows messages.", async () => {
+test("Can send message in channel.", async () => {
+  let sent = false
   server.use(
     http.get(import.meta.env.VITE_API_URL! + "timeline/", async () => {
       return HttpResponse.json([{
@@ -91,6 +60,10 @@ test("Timeline page shows messages.", async () => {
         time_sent: (new Date()).toISOString(),
         edited: false
       }])
+    }),
+    http.post(import.meta.env.VITE_API_URL! + "message/:channelId/", async () => {
+      sent = true
+      return HttpResponse.json({})
     })
   )
   render(
@@ -98,6 +71,9 @@ test("Timeline page shows messages.", async () => {
       <TimelinePage />
     </BrowserRouter>
   )
-  const message = await screen.findByText("cogito, ergo sum")
-  expect(message).toBeDefined()
+  const textBox = await screen.findByLabelText("Message box")
+  await userEvent.type(textBox, "existence preceeds essence")
+  const sendMessage = await screen.findByLabelText("Send message")
+  await userEvent.click(sendMessage)
+  expect(sent).toBeTruthy()
 })

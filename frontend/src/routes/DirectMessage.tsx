@@ -7,12 +7,13 @@ import TimelineBar from "../components/TimelineBar"
 import FriendRequestMobile from "../components/FriendRequestMobile"
 import ToolbarMobile from "../components/ToolbarMobile"
 import { IconSettings } from "@tabler/icons-react"
-import MessageBox from "../components/MessageBox"
 import DirectMessageList from "../components/DirectMessageList"
 import fetchTimelines from "../api/fetchTimelines"
 import fetchDirectMessages from "../api/fetchDirectMessages"
 import fetchDmMessages from "../api/fetchDmMessages"
 import CreateTimeline from "../components/CreateTimeline"
+import dateFormat from "../util/dateFormat"
+import DirectMessageBox from "../components/DirectMessageBox"
 
 const homeItself: Timeline[] = [{
     id: "00000000-0000-0000-0000-000000000000",
@@ -20,15 +21,6 @@ const homeItself: Timeline[] = [{
     owner: "",
     defaultChannel: ""
 }]
-
-const months = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-]
-
-function dateFormat(isoDate: string): string {
-  const date = new Date(isoDate)
-  return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`
-}
 
 function DirectMessagePage() {
   const { id } = useParams()
@@ -66,6 +58,7 @@ function DirectMessagePage() {
     window.addEventListener("resize", handleResize)
     return () => window.removeEventListener("resize", handleResize)
   }, [])
+
   return (
     <AppShell
       header={{ height: 60 }}
@@ -135,7 +128,7 @@ function DirectMessagePage() {
           minWidth: 0
         }}>
           <Paper shadow="xs" radius="md" p="xs">
-            <MessageBox receiver={id!} timestampSetter={setRecentMessageTimestamp} />
+            <DirectMessageBox receiver={id!} timestampSetter={setRecentMessageTimestamp} />
           </Paper>
         </Box>
       </AppShell.Main>

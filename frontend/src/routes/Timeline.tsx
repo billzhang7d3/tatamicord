@@ -1,8 +1,8 @@
-import { AppShell, Avatar, Burger, Button, Center, Group, Modal, NavLink, Stack, Text, TextInput } from "@mantine/core"
+import { AppShell, Avatar, Box, Burger, Button, Center, Flex, Group, Modal, NavLink, Paper, ScrollArea, Stack, Text, TextInput } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { Channel, Timeline } from "../types"
+import { Channel, Message, Timeline } from "../types"
 import FriendRequestMobile from "../components/FriendRequestMobile"
 import TimelineBar from "../components/TimelineBar"
 import fetchTimelines from "../api/fetchTimelines"
@@ -11,6 +11,9 @@ import ToolbarMobile from "../components/ToolbarMobile"
 import { IconSettings } from "@tabler/icons-react"
 import CreateTimeline from "../components/CreateTimeline"
 import { useForm } from "@mantine/form"
+import fetchChannelMessages from "../api/fetchChannelMessages"
+import dateFormat from "../util/dateFormat"
+import ChannelMessageBox from "../components/ChannelMessageBox"
 
 const homeItself = [{
     id: "00000000-0000-0000-0000-000000000000",
@@ -26,10 +29,14 @@ function TimelinePage() {
 	const [opened, {toggle}] = useDisclosure()
 	const [timelineList, setTimelineList] = useState<Timeline[]>([])
   const [channelList, setChannelList] = useState<Channel[]>([])
+	const [messageList, setMessageList] = useState<Message[]>([])
+  const [recentMessageTimestamp, setRecentMessageTimestamp] = useState((new Date()).toISOString())
   const [friendRequestPage, {open: fr_open, close: fr_close}] = useDisclosure()
   const [createTimelinePage, {open: t_open, close: t_close}] = useDisclosure()
 	const [createChannelPage, {open: c_open, close: c_close}] = useDisclosure()
   const [timelineTrigger, setTimelineTrigger] = useState((new Date()).toISOString())
+  const [messagesHeight, setMessagesHeight] = useState(window.innerHeight)
+  const messagesRef = useRef<HTMLDivElement>(null)
 
 	useEffect(() => {
     fetchTimelines()
@@ -44,6 +51,17 @@ function TimelinePage() {
       .then((result) => {
         setChannelList(result)
       })
+  }, [])
+	useEffect(() => {
+		fetchChannelMessages(channelId!)
+			.then((result) => {
+				setMessageList(result)
+			})
+	}, [channelId, recentMessageTimestamp])
+  useEffect(() => {
+    const handleResize = () => setMessagesHeight(window.innerHeight)
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
   }, [])
 
 	const channelForm = useForm({
@@ -138,7 +156,48 @@ function TimelinePage() {
           )}
         </Stack>
 			</AppShell.Navbar>
-			<AppShell.Main />
+			<AppShell.Main>
+				<ScrollArea h={messagesHeight - 160} viewportRef={messagesRef} style={{ flex: 1 }}>
+					{messageList.map(message => 
+						<Flex
+							key={message.id}
+							gap="md"
+							wrap="nowrap"
+							style={{maxWidth: "300px"}}
+						>
+							<Box style={{verticalAlign: "top"}}>
+								<Avatar radius="xl" />
+							</Box>
+							<Box style={{ position: 'static' }}>
+								<Group gap="xs">
+									<Text fw={700}>
+										{message.sender.username}
+									</Text>
+									<Text size="xs">
+										{dateFormat(message.time_sent)}
+									</Text>
+								</Group>
+								<Box>
+									<Text>
+										{message.content}
+									</Text>
+								</Box>
+							</Box>
+						</Flex>
+					)}
+				</ScrollArea>
+        <Box component="footer" mt="auto" style={{
+          position: "sticky",
+          bottom: "0px",
+          width: "100%",
+          height: "60px",
+          minWidth: 0
+        }}>
+          <Paper shadow="xs" radius="md" p="xs">
+            <ChannelMessageBox channel={channelId!} timestampSetter={setRecentMessageTimestamp} />
+          </Paper>
+        </Box>
+			</AppShell.Main>
 		</AppShell>
 	)
 }

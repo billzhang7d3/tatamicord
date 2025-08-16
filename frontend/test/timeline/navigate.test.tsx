@@ -48,6 +48,9 @@ test("Timeline page can navigate home.", async () => {
         name: "dev",
         timeline: "fake-timeline"
       }])
+    }),
+    http.get(import.meta.env.VITE_API_URL! + "messages/:channelId/", async () => {
+      return HttpResponse.json([])
     })
   )
   render(
@@ -83,6 +86,9 @@ test("Timeline page can navigate to other timelines.", async () => {
         name: "dev",
         timeline: "fake-timeline"
       }])
+    }),
+    http.get(import.meta.env.VITE_API_URL! + "messages/:channelId/", async () => {
+      return HttpResponse.json([])
     })
   )
   render(

@@ -8,7 +8,7 @@ interface Props {
   timestampSetter: (timestamp: string) => void
 }
 
-function MessageBox({ receiver, timestampSetter }: Props) {
+function DirectMessageBox({ receiver, timestampSetter }: Props) {
   const [message, setMessage] = useState("");
   const handleSubmit = () => {
     sendDmMessage(receiver, message)
@@ -41,4 +41,4 @@ function MessageBox({ receiver, timestampSetter }: Props) {
   )
 }
 
-export default MessageBox
+export default DirectMessageBox
