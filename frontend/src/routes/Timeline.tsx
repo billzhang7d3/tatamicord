@@ -1,7 +1,7 @@
-import { AppShell, Avatar, Box, Burger, Button, Group, NavLink, Paper, ScrollArea, Stack, } from "@mantine/core"
+import { AppShell, Box, Burger, Button, Group, Paper, ScrollArea, } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import { useEffect, useRef, useState } from "react"
-import { useNavigate, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import { Channel, Message, Timeline } from "../types"
 import FriendRequestMobile from "../components/FriendRequestMobile"
 import TimelineBar from "../components/TimelineBar"
@@ -14,6 +14,7 @@ import fetchChannelMessages from "../api/fetchChannelMessages"
 import ChannelMessageBox from "../components/ChannelMessageBox"
 import MessageList from "../components/MessageList"
 import CreateChannel from "../components/CreateChannel"
+import ChannelList from "../components/ChannelList"
 
 const homeItself = [{
     id: "00000000-0000-0000-0000-000000000000",
@@ -24,7 +25,6 @@ const homeItself = [{
 
 function TimelinePage() {
   const { timelineId, channelId } = useParams()
-	const navigate = useNavigate()
 	const [currentTimeline, setCurrentTimeline] = useState<Timeline | undefined>(undefined)
 	const [opened, {toggle}] = useDisclosure()
 	const [timelineList, setTimelineList] = useState<Timeline[]>([])
@@ -56,6 +56,7 @@ function TimelinePage() {
 		fetchChannelMessages(channelId!)
 			.then((result) => {
 				setMessageList(result)
+        messagesRef.current?.scrollTo({ top: messagesRef.current?.scrollHeight });
 			})
 	}, [channelId, recentMessageTimestamp])
   useEffect(() => {
@@ -93,22 +94,14 @@ function TimelinePage() {
 			</AppShell.Header>
 			<AppShell.Navbar>
 				<CreateChannel timelineId={timelineId!} channelTrigger={setChannelTrigger} />
-				<Stack justify="flex-start" align="flex-start" gap="xs">
-          {channelList.map(channel =>
-            <NavLink
-              label={`#${channel.name}`}
-              key={channel.id}
-              leftSection={<Avatar radius="xl" />}
-              onClick={() => {
-                navigate(`/timeline/${timelineId}/${channel.id}`)
-                toggle()
-              }}
-            />
-          )}
-        </Stack>
+				<ChannelList timelineId={timelineId!} channelList={channelList} toggle={toggle} />
 			</AppShell.Navbar>
 			<AppShell.Main>
-				<ScrollArea h={messagesHeight - 160} viewportRef={messagesRef} style={{ flex: 1 }}>
+				<ScrollArea
+					h={messagesHeight - 160}
+					viewportRef={messagesRef}
+					style={{ flex: 1, wordBreak: "break-word", whiteSpace: "normal" }}
+				>
 					<MessageList messageList={messageList} />
 				</ScrollArea>
         <Box component="footer" mt="auto" style={{

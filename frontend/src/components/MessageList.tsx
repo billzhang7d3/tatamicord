@@ -13,7 +13,8 @@ function MessageList({ messageList }: Props) {
         <Flex
           key={message.id}
           gap="md"
-          wrap="nowrap"
+          // wrap="wrap"
+          // style={{maxWidth: window.innerWidth}}
         >
           <Box style={{verticalAlign: "top"}}>
             <Avatar radius="xl" />

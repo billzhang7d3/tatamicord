@@ -1,24 +1,25 @@
 import { Avatar, NavLink, ScrollArea } from "@mantine/core"
-import { DirectMessageInfo } from "../types"
+import { Channel } from "../types"
 import { useNavigate } from "react-router-dom"
 
 interface Props {
-  dmList: DirectMessageInfo[]
+  timelineId: string
+  channelList: Channel[]
   toggle: () => void
 }
 
-function DirectMessageList({ dmList, toggle }: Props) {
+function ChannelList({ timelineId, channelList, toggle }: Props) {
   const navigate = useNavigate()
   return (
     <ScrollArea>
-      {dmList.map(dm =>
+      {channelList.map(channel =>
         <NavLink
-          label={dm.receiver.username}
-          key={dm.id}
+          label={`#${channel.name}`}
+          key={channel.id}
           leftSection={<Avatar radius="xl" />}
           onClick={() => {
+            navigate(`/timeline/${timelineId}/${channel.id}`)
             toggle()
-            navigate(`/direct-message/${dm.receiver.id}`)
           }}
         />
       )}
@@ -26,4 +27,4 @@ function DirectMessageList({ dmList, toggle }: Props) {
   )
 }
 
-export default DirectMessageList
+export default ChannelList

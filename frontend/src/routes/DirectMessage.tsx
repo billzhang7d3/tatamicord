@@ -93,7 +93,11 @@ function DirectMessagePage() {
         <DirectMessageList dmList={dmList} toggle={toggle} />
       </AppShell.Navbar>
       <AppShell.Main>
-        <ScrollArea h={messagesHeight - 160} viewportRef={messagesRef} style={{ flex: 1 }}>
+				<ScrollArea
+					h={messagesHeight - 160}
+					viewportRef={messagesRef}
+					style={{ flex: 1, wordBreak: "break-word", whiteSpace: "normal" }}
+				>
           <MessageList messageList={messageList} />
         </ScrollArea>
         <Box component="footer" mt="auto" style={{

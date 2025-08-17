@@ -1,4 +1,4 @@
-import { Button, Center, Modal, Stack, Text, TextInput } from "@mantine/core"
+import { Box, Button, Center, Modal, Stack, Text, TextInput } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { useDisclosure } from "@mantine/hooks"
 
@@ -21,7 +21,7 @@ function CreateChannel({ timelineId, channelTrigger }: Props) {
 	})
 
   return (
-    <>
+    <Box style={{paddingTop: "20px", paddingBottom: "20px"}}>
       <Modal opened={createChannelPage} onClose={c_close} title="Create Channel">
         <Modal.Body>
           <form onSubmit={channelForm.onSubmit((values) => {
@@ -58,12 +58,14 @@ function CreateChannel({ timelineId, channelTrigger }: Props) {
           </form>
         </Modal.Body>
       </Modal>
-      <Button variant="light" onClick={c_open}>
-        <Text>
-          Create Channel
-        </Text>
-      </Button>
-    </>
+      <Center>
+        <Button variant="light" onClick={c_open}>
+          <Text>
+            Create Channel
+          </Text>
+        </Button>
+      </Center>
+    </Box>
   )
 }
 
