@@ -97,3 +97,14 @@ pub struct DirectMessage {
 pub struct IdField {
     pub id: String
 }
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct InviteInput {
+    pub timeline: String
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct InviteCode {
+    pub timeline: String,
+    pub code: String
+}

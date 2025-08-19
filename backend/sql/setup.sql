@@ -76,3 +76,9 @@ CREATE TABLE direct_message (
 );
 ALTER TABLE direct_message
 ADD CONSTRAINT check_members_not_equal CHECK (member1 <> member2);
+
+DROP TABLE IF EXISTS invite_code CASCADE;
+CREATE TABLE invite_code (
+    code VARCHAR(8) PRIMARY KEY DEFAULT substring(gen_random_uuid()::TEXT, 1, 8),
+    timeline_id UUID REFERENCES timeline(id)
+);

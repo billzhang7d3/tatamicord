@@ -53,3 +53,29 @@ pub async fn create_timeline_handler(
         ).into_response()
     };
 }
+
+pub async fn create_invite(
+    headers: HeaderMap,
+    State(client): State<Arc<Client>>,
+    Json(body): Json<types::InviteInput>
+) -> impl IntoResponse {
+    // auth
+    let auth_result = auth::authenticated(&headers).await;
+    if auth_result.is_err() {
+        return (
+            StatusCode::NOT_FOUND,
+            "{\"error\":\"Not Found.\"}"
+        ).into_response();
+    }
+    // create invite link
+    return match timeline::create_invite(&client, body.timeline).await {
+        Ok(invite_code) => (
+            StatusCode::OK,
+            serde_json::to_string(&invite_code).unwrap()
+        ).into_response(),
+        Err(_err) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "{\"error\":\"Failed to create invite.\"}"
+        ).into_response()
+    }
+}

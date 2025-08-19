@@ -4,7 +4,7 @@ use std::{
 };
 use tokio_postgres::{Client, Row};
 
-use crate::types::Timeline;
+use crate::types::{InviteCode, Timeline};
 
 pub async fn get_timelines(client: &Arc<Client>, id: String) -> Vec<Timeline> {
     let query = r#"
@@ -64,4 +64,21 @@ default_channel::TEXT;
         Err(_) => Err("Failed to create timeline".to_string())
         // ^ line will be covered when I make a trigger for server limit
     }
+}
+
+pub async fn create_invite(client: &Arc<Client>, timeline_id: String) -> Result<InviteCode, String> {
+    let query = r#"
+INSERT INTO invite_code (timeline_id)
+VALUES (CAST($1::TEXT AS UUID))
+RETURNING code, timeline_id::TEXT;"#;
+    let row_result = client
+        .query_one(query, &[&timeline_id])
+        .await;
+    return match row_result {
+        Ok(row) => Ok(InviteCode {
+            timeline: row.get::<&str, String>("timeline_id"),
+            code: row.get::<&str, String>("code")
+        }),
+        Err(_) => Err("Failed to create invite".to_string())
+    };
 }
