@@ -16,3 +16,4 @@ services:
       - ./sql/send_direct_message.sql:/docker-entrypoint-initdb.d/5.send_direct_message.sql
       - ./sql/send_message.sql:/docker-entrypoint-initdb.d/6.send_message.sql
       - ./sql/test_data.sql:/docker-entrypoint-initdb.d/7.test_data.sql
+      - ./sql/join_timeline.sql:/docker-entrypoint-initdb.d/8.join_timeline.sql

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use axum::{extract::State, response::IntoResponse, Json};
+use axum::{extract::{Path, State}, response::IntoResponse, Json};
 use http::{HeaderMap, StatusCode};
 use tokio_postgres::Client;
 
@@ -54,7 +54,7 @@ pub async fn create_timeline_handler(
     };
 }
 
-pub async fn create_invite(
+pub async fn create_invite_handler(
     headers: HeaderMap,
     State(client): State<Arc<Client>>,
     Json(body): Json<types::InviteInput>
@@ -77,5 +77,32 @@ pub async fn create_invite(
             StatusCode::INTERNAL_SERVER_ERROR,
             "{\"error\":\"Failed to create invite.\"}"
         ).into_response()
+    }
+}
+
+pub async fn join_timeline_handler(
+    Path(code): Path<String>,
+    headers: HeaderMap,
+    State(client): State<Arc<Client>>
+) -> impl IntoResponse {
+    // auth
+    let auth_result = auth::authenticated(&headers).await;
+    if auth_result.is_err() {
+        return (
+            StatusCode::NOT_FOUND,
+            "{\"error\":\"Not Found.\"}"
+        ).into_response();
+    }
+    // join timeline
+    let member_id = auth_result.unwrap().id;
+    let result = timeline::join_timeline(&client, code, member_id).await;
+    if result {
+        return (
+            StatusCode::OK
+        ).into_response();
+    } else {
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR
+        ).into_response();
     }
 }

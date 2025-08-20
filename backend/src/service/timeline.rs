@@ -68,7 +68,7 @@ default_channel::TEXT;
 
 pub async fn create_invite(client: &Arc<Client>, timeline_id: String) -> Result<InviteCode, String> {
     let query = r#"
-INSERT INTO invite_code (timeline_id)
+INSERT INTO invite (timeline_id)
 VALUES (CAST($1::TEXT AS UUID))
 RETURNING code, timeline_id::TEXT;"#;
     let row_result = client
@@ -81,4 +81,17 @@ RETURNING code, timeline_id::TEXT;"#;
         }),
         Err(_) => Err("Failed to create invite".to_string())
     };
+}
+
+pub async fn join_timeline(client: &Arc<Client>, code: String, member_id: String) -> bool {
+    let query = r#"
+SELECT timeline_id
+FROM join_timeline($1::TEXT, CAST($2::TEXT AS UUID));"#;
+    let row_result = client
+        .query_one(query, &[&code, &member_id])
+        .await;
+    return match row_result {
+        Ok(_row) => true,
+        Err(_) => false
+    }
 }

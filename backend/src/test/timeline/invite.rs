@@ -44,4 +44,43 @@ mod invite_tests {
         assert_eq!(invite_code.timeline, timeline_id);
         assert_eq!(invite_code.code.len(), 8);
     }
+
+    #[tokio::test]
+    async fn can_join_timeline_from_invite() {
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let ruby: Credentials = Credentials {
+            email: "ruby@example.com".to_string(),
+            password: "star".to_string()
+        };
+        let ruby_jwt = login(&server, &ruby).await;
+        let chocomint_input = TimelineInput {
+            name: "Chocolate Mint".to_owned()
+        };
+        let timeline_id = server.post("/timeline/")
+            .add_header("Authorization", format!("jwt {}", ruby_jwt))
+            .json::<TimelineInput>(&chocomint_input)
+            .await
+            .json::<Timeline>()
+            .id;
+        let invite_code = server.post("/invite/")
+            .add_header("Authorization", format!("jwt {}", ruby_jwt))
+            .json::<InviteInput>(&InviteInput { timeline: timeline_id.clone() })
+            .await
+            .json::<InviteCode>()
+            .code;
+        let ruby2: Credentials = Credentials {
+            email: "ruby2@example.com".to_string(),
+            password: "star".to_string()
+        };
+        let ruby2_jwt = login(&server, &ruby2).await;
+        server.put(&format!("/invite/{}/", &invite_code))
+            .add_header("Authorization", format!("jwt {}", ruby2_jwt))
+            .await
+            .assert_status_ok();
+        let timeline_list = server.get("/timeline/")
+            .add_header("Authorization", format!("jwt {}", ruby2_jwt))
+            .await
+            .json::<Vec<Timeline>>();
+        assert_eq!(timeline_list.len(), 1);
+    }
 }
