@@ -3,6 +3,7 @@ RETURNS SETOF member_timeline AS
 $BODY$
 DECLARE
     existing_timeline UUID;
+    existing_member UUID;
 BEGIN
     SELECT timeline_id INTO existing_timeline
     FROM invite
@@ -10,6 +11,7 @@ BEGIN
     IF existing_timeline IS NULL THEN
         RAISE EXCEPTION 'invalid invite';
     END IF;
+    -- if following query fails then user is not in timeline
     RETURN QUERY INSERT INTO member_timeline (
         member_id,
         timeline_id

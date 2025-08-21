@@ -83,7 +83,7 @@ RETURNING code, timeline_id::TEXT;"#;
     };
 }
 
-pub async fn join_timeline(client: &Arc<Client>, code: String, member_id: String) -> bool {
+pub async fn join_timeline(client: &Arc<Client>, code: String, member_id: String) -> Result<(), String> {
     let query = r#"
 SELECT timeline_id
 FROM join_timeline($1::TEXT, CAST($2::TEXT AS UUID));"#;
@@ -91,7 +91,13 @@ FROM join_timeline($1::TEXT, CAST($2::TEXT AS UUID));"#;
         .query_one(query, &[&code, &member_id])
         .await;
     return match row_result {
-        Ok(_row) => true,
-        Err(_) => false
+        Ok(_row) => Ok(()),
+        Err(err) => {
+            if err.to_string() == "db error: ERROR: invalid invite" {
+                Err("invalid invite".to_owned())
+            } else {
+                Err("already in timeline".to_owned())
+            }
+        }
     }
 }

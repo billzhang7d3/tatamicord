@@ -95,14 +95,15 @@ pub async fn join_timeline_handler(
     }
     // join timeline
     let member_id = auth_result.unwrap().id;
-    let result = timeline::join_timeline(&client, code, member_id).await;
-    if result {
-        return (
+    match timeline::join_timeline(&client, code, member_id).await {
+        Ok(_) => (
             StatusCode::OK
-        ).into_response();
-    } else {
-        return (
-            StatusCode::INTERNAL_SERVER_ERROR
-        ).into_response();
+        ).into_response(),
+        Err(err) => {
+            let status_code: StatusCode =
+                    if err == "invalid invite" {StatusCode::NOT_FOUND}
+                    else {StatusCode::FORBIDDEN};
+            (status_code, format!("{{\"error\":\"{}.\"}}", err)).into_response()
+        }
     }
 }

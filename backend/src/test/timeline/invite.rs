@@ -83,4 +83,48 @@ mod invite_tests {
             .json::<Vec<Timeline>>();
         assert_eq!(timeline_list.len(), 1);
     }
+
+    #[tokio::test]
+    async fn cant_join_timeline_if_already_in() {
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let luna: Credentials = Credentials {
+            email: "luna@example.com".to_string(),
+            password: "princess".to_string()
+        };
+        let luna_jwt = login(&server, &luna).await;
+        let timeline_input = TimelineInput {
+            name: "Candy".to_owned()
+        };
+        let timeline_id = server.post("/timeline/")
+            .add_header("Authorization", format!("jwt {}", luna_jwt))
+            .json::<TimelineInput>(&timeline_input)
+            .await
+            .json::<Timeline>()
+            .id;
+        let invite_code = server.post("/invite/")
+            .add_header("Authorization", format!("jwt {}", luna_jwt))
+            .json::<InviteInput>(&InviteInput { timeline: timeline_id.clone() })
+            .await
+            .json::<InviteCode>()
+            .code;
+        server.put(&format!("/invite/{}/", &invite_code))
+            .add_header("Authorization", format!("jwt {}", luna_jwt))
+            .await
+            .assert_status_forbidden();
+    }
+
+    #[tokio::test]
+    async fn invalid_invite() {
+        let server = TestServer::new(app::create_app().await).unwrap();
+        let dan: Credentials = Credentials {
+            email: "dan1@example.com".to_string(),
+            password: "composer".to_string()
+        };
+        let dan_jwt = login(&server, &dan).await;
+        let invite_code = "1";
+        server.put(&format!("/invite/{}/", &invite_code))
+            .add_header("Authorization", format!("jwt {}", dan_jwt))
+            .await
+            .assert_status_not_found();
+    }
 }
