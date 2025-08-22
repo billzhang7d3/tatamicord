@@ -97,4 +97,10 @@ INSERT INTO member (
         'email', 'roa@example.com',
         'pw_hash', crypt('jellyfish', gen_salt('bf'))
     )
+), (
+    'alexandria',
+    jsonb_build_object(
+        'email', 'alexandria@example.com',
+        'pw_hash', crypt('representative', gen_salt('bf'))
+    )
 );

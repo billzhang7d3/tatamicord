@@ -16,7 +16,8 @@ SELECT DISTINCT
 FROM timeline tl
 INNER JOIN member_timeline mt
 ON tl.id = mt.timeline_id
-WHERE mt.member_id::TEXT = $1::TEXT;
+WHERE mt.member_id::TEXT = $1::TEXT
+AND tl.timeline_name IS NOT NULL;
 "#;
     let rows_result: Vec<Row> = client
         .query(query, &[&id])
@@ -100,4 +101,18 @@ FROM join_timeline($1::TEXT, CAST($2::TEXT AS UUID));"#;
             }
         }
     }
+}
+
+pub async fn delete_timeline(client: &Arc<Client>, owner_id: String, timeline_id: String) -> Result<(), String> {
+    let query = r#"
+SELECT *
+FROM invalidate_timeline(CAST($1::TEXT AS UUID), CAST($2::TEXT AS UUID));
+    "#;
+    let row_result = client
+        .query_one(query, &[&timeline_id, &owner_id])
+        .await;
+    return match row_result {
+        Ok(_row) => Ok(()),
+        Err(_err) => Err("member is not owner of timeline".to_owned())
+    };
 }

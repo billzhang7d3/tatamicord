@@ -96,14 +96,33 @@ pub async fn join_timeline_handler(
     // join timeline
     let member_id = auth_result.unwrap().id;
     match timeline::join_timeline(&client, code, member_id).await {
-        Ok(_) => (
-            StatusCode::OK
-        ).into_response(),
+        Ok(_) => (StatusCode::OK).into_response(),
         Err(err) => {
             let status_code: StatusCode =
                     if err == "invalid invite" {StatusCode::NOT_FOUND}
                     else {StatusCode::FORBIDDEN};
             (status_code, format!("{{\"error\":\"{}.\"}}", err)).into_response()
         }
+    }
+}
+
+pub async fn delete_timeline_handler(
+    headers: HeaderMap,
+    State(client): State<Arc<Client>>,
+    Json(body): Json<types::IdField>
+) -> impl IntoResponse {
+    // auth
+    let auth_result = auth::authenticated(&headers).await;
+    if auth_result.is_err() {
+        return (
+            StatusCode::NOT_FOUND,
+            "{\"error\":\"Not Found.\"}"
+        ).into_response();
+    }
+    // delete timeline
+    let member_id = auth_result.unwrap().id;
+    match timeline::delete_timeline(&client, member_id, body.id).await {
+        Ok(_) => (StatusCode::OK).into_response(),
+        Err(_err) => (StatusCode::NOT_FOUND).into_response()
     }
 }

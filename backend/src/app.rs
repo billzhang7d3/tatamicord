@@ -59,6 +59,7 @@ pub async fn create_app() -> Router {
         .route("/tag/", put(handlers::member::change_tag_handler))
         .route("/timeline/", get(handlers::timeline::get_timelines_handler))
         .route("/timeline/", post(handlers::timeline::create_timeline_handler))
+        .route("/timeline/", delete(handlers::timeline::delete_timeline_handler))
         .route("/invite/", post(handlers::timeline::create_invite_handler))
         .route("/invite/{code}/", put(handlers::timeline::join_timeline_handler))
         .route("/direct-message/", get(handlers::direct_message::get_dm_list_handler))
