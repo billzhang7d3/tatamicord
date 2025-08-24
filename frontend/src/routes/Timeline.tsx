@@ -7,7 +7,7 @@ import FriendRequestMobile from "../components/FriendRequestMobile"
 import TimelineBar from "../components/TimelineBar"
 import fetchTimelines from "../api/fetchTimelines"
 import fetchChannels from "../api/fetchChannels"
-import ToolbarMobile from "../components/ToolbarMobile"
+import ToolbarSm from "../components/ToolbarSm"
 import { IconSettings } from "@tabler/icons-react"
 import CreateTimeline from "../components/CreateTimeline"
 import fetchChannelMessages from "../api/fetchChannelMessages"
@@ -17,6 +17,7 @@ import CreateChannel from "../components/CreateChannel"
 import ChannelList from "../components/ChannelList"
 import JoinTimeline from "../components/JoinTimeline"
 import CreateInvite from "../components/CreateInvite"
+import ToolbarLg from "../components/ToolbarLg"
 
 const homeItself = [{
     id: "00000000-0000-0000-0000-000000000000",
@@ -92,13 +93,24 @@ function TimelinePage() {
           <CreateTimeline opened={createTimelinePage} close={ct_close} trigger={setTimelineTrigger}/>
           <JoinTimeline opened={joinTimelinePage} close={jt_close} trigger={setTimelineTrigger} />
           <CreateInvite opened={createInvitePage} close={ci_close} timelineId={timelineId!} />
-					<ToolbarMobile
-            openFriendModal={fr_open}
-            openCreateTimelineModal={ct_open}
-            openJoinTimelineModal={jt_open}
-            openCreateInviteModal={ci_open}
-            timelineId={timelineId}
-          />
+          <Box hiddenFrom="lg">
+            <ToolbarSm
+              openFriendModal={fr_open}
+              openCreateTimelineModal={ct_open}
+              openJoinTimelineModal={jt_open}
+              openCreateInviteModal={ci_open}
+              timelineId={timelineId}
+            />
+          </Box>
+          <Box visibleFrom="lg">
+            <ToolbarLg
+              openFriendModal={fr_open}
+              openCreateTimelineModal={ct_open}
+              openJoinTimelineModal={jt_open}
+              openCreateInviteModal={ci_open}
+              timelineId={timelineId}
+            />
+          </Box>
 					<Button aria-label="settings" variant="transparent" size="xs">
             <IconSettings />
           </Button>

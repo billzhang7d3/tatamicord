@@ -3,7 +3,7 @@ import { useDisclosure } from "@mantine/hooks"
 import { useEffect, useState } from "react"
 import TimelineBar from "../components/TimelineBar"
 import { IconSettings } from "@tabler/icons-react"
-import ToolbarMobile from "../components/ToolbarMobile"
+import ToolbarSm from "../components/ToolbarSm"
 import FriendRequestMobile from "../components/FriendRequestMobile"
 import { DirectMessageInfo, Timeline } from "../types"
 import DirectMessageList from "../components/DirectMessageList"
@@ -63,7 +63,7 @@ function HomePage() {
           <FriendRequestMobile opened={friendRequestPage} close={fr_close} />
           <CreateTimeline opened={createTimelinePage} close={ct_close} trigger={setTimelineTrigger} />
           <JoinTimeline opened={joinTimelinePage} close={jt_close} trigger={setTimelineTrigger} />
-          <ToolbarMobile
+          <ToolbarSm
             openFriendModal={fr_open}
             openCreateTimelineModal={ct_open}
             openJoinTimelineModal={jt_open}

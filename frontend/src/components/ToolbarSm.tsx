@@ -18,7 +18,7 @@ interface Props {
   timelineId?: string
 }
 
-function ToolbarMobile({
+function ToolbarSm({
   openFriendModal,
   openCreateTimelineModal,
   openJoinTimelineModal,
@@ -26,6 +26,7 @@ function ToolbarMobile({
   timelineId
 }: Props) {
   const navigate = useNavigate()
+
   return (
     <Menu>
       <Menu.Target>
@@ -67,11 +68,11 @@ function ToolbarMobile({
           </>
         )}
         <Divider />
-        <Menu.Item leftSection={<IconLogout />} onClick={() => {
+        <Menu.Item leftSection={<IconLogout color="var(--mantine-color-red-filled)" />} onClick={() => {
           localStorage.removeItem("authToken")
           navigate("/login")
         }}>
-          <Text c="red">
+          <Text c="var(--mantine-color-red-filled)">
             Log Out
           </Text>
         </Menu.Item>
@@ -80,4 +81,4 @@ function ToolbarMobile({
   )
 }
 
-export default ToolbarMobile
+export default ToolbarSm

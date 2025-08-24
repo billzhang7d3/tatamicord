@@ -5,7 +5,7 @@ import { useDisclosure } from "@mantine/hooks"
 import { useParams } from "react-router-dom"
 import TimelineBar from "../components/TimelineBar"
 import FriendRequestMobile from "../components/FriendRequestMobile"
-import ToolbarMobile from "../components/ToolbarMobile"
+import ToolbarSm from "../components/ToolbarSm"
 import { IconSettings } from "@tabler/icons-react"
 import DirectMessageList from "../components/DirectMessageList"
 import fetchTimelines from "../api/fetchTimelines"
@@ -86,7 +86,7 @@ function DirectMessagePage() {
           <FriendRequestMobile opened={friendRequestPage} close={fr_close} />
           <CreateTimeline opened={createTimelinePage} close={ct_close} trigger={setTimelineTrigger} />
           <JoinTimeline opened={joinTimelinePage} close={jt_close} trigger={setTimelineTrigger} />
-          <ToolbarMobile
+          <ToolbarSm
             openFriendModal={fr_open}
             openCreateTimelineModal={ct_open}
             openJoinTimelineModal={jt_open}
