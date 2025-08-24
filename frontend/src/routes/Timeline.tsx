@@ -15,6 +15,8 @@ import ChannelMessageBox from "../components/ChannelMessageBox"
 import MessageList from "../components/MessageList"
 import CreateChannel from "../components/CreateChannel"
 import ChannelList from "../components/ChannelList"
+import JoinTimeline from "../components/JoinTimeline"
+import CreateInvite from "../components/CreateInvite"
 
 const homeItself = [{
     id: "00000000-0000-0000-0000-000000000000",
@@ -32,7 +34,9 @@ function TimelinePage() {
 	const [messageList, setMessageList] = useState<Message[]>([])
   const [recentMessageTimestamp, setRecentMessageTimestamp] = useState((new Date()).toISOString())
   const [friendRequestPage, {open: fr_open, close: fr_close}] = useDisclosure()
-  const [createTimelinePage, {open: t_open, close: t_close}] = useDisclosure()
+  const [createTimelinePage, {open: ct_open, close: ct_close}] = useDisclosure()
+  const [joinTimelinePage, {open: jt_open, close: jt_close}] = useDisclosure()
+  const [createInvitePage, {open: ci_open, close: ci_close}] = useDisclosure()
   const [timelineTrigger, setTimelineTrigger] = useState((new Date()).toISOString())
   const [channelTrigger, setChannelTrigger] = useState((new Date()).toISOString())
   const [messagesHeight, setMessagesHeight] = useState(window.innerHeight)
@@ -85,8 +89,16 @@ function TimelinePage() {
             currentTimeline={currentTimeline}
           />
 					<FriendRequestMobile opened={friendRequestPage} close={fr_close} />
-          <CreateTimeline opened={createTimelinePage} close={t_close} trigger={setTimelineTrigger}/>
-					<ToolbarMobile openFriendModal={fr_open} openTimelineModal={t_open}/>
+          <CreateTimeline opened={createTimelinePage} close={ct_close} trigger={setTimelineTrigger}/>
+          <JoinTimeline opened={joinTimelinePage} close={jt_close} trigger={setTimelineTrigger} />
+          <CreateInvite opened={createInvitePage} close={ci_close} timelineId={timelineId!} />
+					<ToolbarMobile
+            openFriendModal={fr_open}
+            openCreateTimelineModal={ct_open}
+            openJoinTimelineModal={jt_open}
+            openCreateInviteModal={ci_open}
+            timelineId={timelineId}
+          />
 					<Button aria-label="settings" variant="transparent" size="xs">
             <IconSettings />
           </Button>

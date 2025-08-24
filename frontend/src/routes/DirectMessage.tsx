@@ -14,6 +14,7 @@ import fetchDmMessages from "../api/fetchDmMessages"
 import CreateTimeline from "../components/CreateTimeline"
 import DirectMessageBox from "../components/DirectMessageBox"
 import MessageList from "../components/MessageList"
+import JoinTimeline from "../components/JoinTimeline"
 
 const homeItself: Timeline[] = [{
     id: "00000000-0000-0000-0000-000000000000",
@@ -26,7 +27,8 @@ function DirectMessagePage() {
   const { id } = useParams()
   const [opened, {toggle}] = useDisclosure()
   const [friendRequestPage, {open: fr_open, close: fr_close}] = useDisclosure()
-  const [createTimelinePage, {open: t_open, close: t_close}] = useDisclosure()
+  const [createTimelinePage, {open: ct_open, close: ct_close}] = useDisclosure()
+  const [joinTimelinePage, {open: jt_open, close: jt_close}] = useDisclosure()
   const [dmList, setDmList] = useState<DirectMessageInfo[]>([])
   const [timelineList, setTimelineList] = useState<Timeline[]>(homeItself)
   const [messageList, setMessageList] = useState<Message[]>([])
@@ -82,8 +84,13 @@ function DirectMessagePage() {
 
           />
           <FriendRequestMobile opened={friendRequestPage} close={fr_close} />
-          <CreateTimeline opened={createTimelinePage} close={t_close} trigger={setTimelineTrigger} />
-          <ToolbarMobile openFriendModal={fr_open} openTimelineModal={t_open}/>
+          <CreateTimeline opened={createTimelinePage} close={ct_close} trigger={setTimelineTrigger} />
+          <JoinTimeline opened={joinTimelinePage} close={jt_close} trigger={setTimelineTrigger} />
+          <ToolbarMobile
+            openFriendModal={fr_open}
+            openCreateTimelineModal={ct_open}
+            openJoinTimelineModal={jt_open}
+          />
           <Button aria-label="settings" variant="transparent" size="xs">
             <IconSettings />
           </Button>

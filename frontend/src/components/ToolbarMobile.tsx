@@ -1,13 +1,30 @@
-import { Button, Menu, Text } from "@mantine/core"
-import { IconDotsVertical, IconLogout, IconUserPlus, IconUsers, IconArrowRightDashed } from "@tabler/icons-react"
+import { Button, Divider, Menu, Text } from "@mantine/core"
+import {
+  IconArrowRightDashed,
+  IconDotsVertical,
+  IconLogout,
+  IconTrendingUp2,
+  IconUserPlus,
+  IconUsers,
+  IconUsersPlus
+} from "@tabler/icons-react"
 import { useNavigate } from "react-router-dom"
 
 interface Props {
   openFriendModal: () => void
-  openTimelineModal: () => void
+  openCreateTimelineModal: () => void
+  openJoinTimelineModal: () => void
+  openCreateInviteModal?: () => void
+  timelineId?: string
 }
 
-function ToolbarMobile({ openFriendModal, openTimelineModal }: Props) {
+function ToolbarMobile({
+  openFriendModal,
+  openCreateTimelineModal,
+  openJoinTimelineModal,
+  openCreateInviteModal,
+  timelineId
+}: Props) {
   const navigate = useNavigate()
   return (
     <Menu>
@@ -29,17 +46,33 @@ function ToolbarMobile({ openFriendModal, openTimelineModal }: Props) {
             Add Friend
           </Text>
         </Menu.Item>
+        <Menu.Item leftSection={<IconArrowRightDashed />} onClick={openCreateTimelineModal}>
+          <Text>
+            Create Timeline
+          </Text>
+        </Menu.Item>
+        <Menu.Item leftSection={<IconTrendingUp2 />} onClick={openJoinTimelineModal}>
+          <Text>
+            Join Timeline
+          </Text>
+        </Menu.Item>
+        {timelineId && (
+          <>
+            <Divider />
+            <Menu.Item leftSection={<IconUsersPlus />} onClick={openCreateInviteModal}>
+              <Text>
+                Create Invite
+              </Text>
+            </Menu.Item>
+          </>
+        )}
+        <Divider />
         <Menu.Item leftSection={<IconLogout />} onClick={() => {
           localStorage.removeItem("authToken")
           navigate("/login")
         }}>
           <Text c="red">
             Log Out
-          </Text>
-        </Menu.Item>
-        <Menu.Item leftSection={<IconArrowRightDashed />} onClick={openTimelineModal}>
-          <Text>
-            Create Timeline
           </Text>
         </Menu.Item>
       </Menu.Dropdown>
